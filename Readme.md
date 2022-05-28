@@ -1,8 +1,8 @@
 # Media download
 
-![Скриншот](https://raw.githubusercontent.com/SLKarol/media-download/main/screenshots/card01.png)
+![Скриншот](https://raw.githubusercontent.com/SLKarol/media-download/main/screenshots/screen1.png)
 
-![Скриншот](https://raw.githubusercontent.com/SLKarol/media-download/main/screenshots/card02.png)
+![Скриншот](https://raw.githubusercontent.com/SLKarol/media-download/main/screenshots/screen2.png)
 
 Программа написана с использованием [reactjs](https://reactjs.org/) и [electron](electronjs.org/).
 Несмотря на то, что есть и другие загрузчики медиа-файлов, я решил в качестве самообразования и практики написать свой вариант.
