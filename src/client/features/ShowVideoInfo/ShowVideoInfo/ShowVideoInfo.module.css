@@ -1,0 +1,14 @@
+.component {
+  margin: 1rem 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  row-gap: 0.2rem;
+  column-gap: 0.3rem;
+  justify-items: center;
+}
+
+.oneColumn {
+  text-align: center;
+  grid-column: 1/3;
+}
+

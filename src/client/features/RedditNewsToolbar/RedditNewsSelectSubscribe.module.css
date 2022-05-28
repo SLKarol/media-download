@@ -1,0 +1,4 @@
+.menu {
+  max-height: 256px;
+  overflow: auto;
+}

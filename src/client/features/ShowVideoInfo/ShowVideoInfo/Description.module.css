@@ -1,0 +1,13 @@
+.list {
+  margin: 0;
+  list-style: none;
+  padding: 0;
+}
+
+.listItem {
+  text-align: center;
+}
+
+.listItemMarginTop {
+  margin-top: 1rem;
+}

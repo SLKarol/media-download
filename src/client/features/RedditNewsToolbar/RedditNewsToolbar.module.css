@@ -1,0 +1,9 @@
+.component {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.title {
+  text-align: center;
+}

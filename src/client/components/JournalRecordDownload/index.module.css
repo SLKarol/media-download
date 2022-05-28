@@ -1,0 +1,13 @@
+.component h5 {
+  overflow-wrap: break-word;
+}
+
+.component {
+  margin-bottom: 0.1em;
+}
+
+.shortInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
