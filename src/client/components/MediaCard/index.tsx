@@ -18,7 +18,7 @@ const MediaCard: FC<PropsWithChildren<Props>> = ({
   return (
     <Card elevation={Elevation.ONE} className={styles.component}>
       <H5>{title}</H5>
-      <MediaPreviewComponent previewImages={previewImages} title={title} />
+      <MediaPreviewComponent decoded={previewImages?.decoded} title={title} />
       <span>{dimensions}</span>
       <MediaCardVideoActions id={id} />
       {children}

@@ -8,7 +8,7 @@ import type { Settings } from '@/types/settings';
 import type { Reddit } from '@/lib/reddit';
 import { saveSettings, getSettings, changeSaveVideoDir } from './settingsHandlers';
 import { getVideoInfo, downloadVideo } from './videoHandlers';
-import { FileSendTelegram, PropsDownLoadVideo } from '@/types/media';
+import { FileSendTelegram, PropsDownLoadVideo, MediaPreview } from '@/types/media';
 import {
   sendVideoInTgGroup,
   sendPictureInTgGroup,
@@ -19,6 +19,8 @@ import { getMySubreddit, getRedditNews } from './redditHandlers';
 import { downloadPicture } from './pictureHandlers';
 import { StatusJournal } from '@/client/mobxStore/journal';
 import { getHolydaysToday } from '@/lib/holidays';
+import { getPreviewImage } from '@/lib/redditUtils';
+import { decodeImageUrlTo64 } from '@/lib/images';
 
 export function setHandlers(props: {
   store: Store<Settings>;
@@ -27,9 +29,42 @@ export function setHandlers(props: {
   telegramBot: Telegraf;
 }): void {
   const { store, menuBuilder, reddit, telegramBot } = props;
-  ipcMain.handle(AppSignals.GET_VIDEO_INFO, (event, ...args) => {
+
+  ipcMain.handle(AppSignals.GET_VIDEO_INFO, async (event, ...args) => {
+    event.sender.send(AppSignals.BACKEND_BUSY, true);
     const [url] = args as string[];
-    getVideoInfo({ event, reddit, url });
+    try {
+      // Получить инфо о видео
+      const { preview, ...info } = await getVideoInfo({ reddit, url });
+      event.sender.send(AppSignals.SEND_VIDEO_INFO, info);
+      // Для www.reddit.com загрузить превьюху
+      const { url: mediaUrl, id, idVideoSource } = info;
+      let mediaPreview: MediaPreview;
+      // Загрузить превью медиаконтента для reddit'a
+      if (idVideoSource === 'www.reddit.com') {
+        const { images = [] } = preview;
+        if (Array.isArray(images) && images.length) {
+          mediaPreview = await getPreviewImage({ images, redditUrl: mediaUrl });
+        }
+      } else {
+        // Загрузить превью медиаконтента для остального (не для реддит)
+        const decoded = await decodeImageUrlTo64(info.previewImages.src);
+        mediaPreview = {
+          decoded,
+          src: info.previewImages.src,
+          height: info.height,
+          width: info.width,
+        };
+      }
+
+      if (mediaPreview) {
+        event.sender.send(AppSignals.SEND_MEDIA_PREVIEW, { id, preview: mediaPreview });
+      }
+    } catch (err) {
+      event.sender.send(AppSignals.BACKEND_ERROR, err);
+    } finally {
+      event.sender.send(AppSignals.BACKEND_BUSY, false);
+    }
   });
 
   ipcMain.handle(AppSignals.SETTINGS_SAVE, (_, ...args) => {

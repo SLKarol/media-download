@@ -7,7 +7,6 @@ import { useRootStore } from '@client/mobxStore/root';
 import type { Settings } from '@/types/settings';
 import styles from './FormSettings.module.css';
 import RedditSettings from './RedditSettings';
-import LoadResponsePreview from './LoadResponsePreview';
 import DefaultSavePath from './DefaultSavePath';
 import TelegramBotSetting from './TelegramBotSetting';
 
@@ -36,7 +35,6 @@ const FormSettings: FC = () => {
     <FormProvider {...formSettings}>
       <form onBlur={formSettings.handleSubmit(onSubmit)} className={styles.component}>
         <RedditSettings />
-        <LoadResponsePreview />
         <DefaultSavePath />
         <TelegramBotSetting />
       </form>

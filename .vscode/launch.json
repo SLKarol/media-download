@@ -29,6 +29,22 @@
         "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
       },
       "protocol": "legacy"
-    }
+    },
+    {
+      "type": "chrome",
+      "request": "attach",
+      "name": "Attach to Render Process",
+      "port": 9222,
+      "webRoot": "${workspaceRoot}/html"
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach to Main Process",
+      "address": "localhost",
+      "port": 5858,
+      "localRoot": "${workspaceRoot}",
+      "remoteRoot": "${workspaceRoot}"
+    },
   ]
 }

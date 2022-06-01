@@ -4,7 +4,7 @@ import { Notification } from 'electron';
 import { StatusJournal } from '@client/mobxStore/journal';
 import { AppSignals } from '@/constants/signals';
 import type { Reddit } from '@/lib/reddit';
-import type { PropsDownLoadVideo, MediaSummary } from '@/types/media';
+import type { PropsDownLoadVideo, MediaSummaryPreview } from '@/types/media';
 import { createFullFileName } from '@/lib/files';
 import { downloadMedia } from '@/lib/videos';
 import { getVideoSource } from '@/lib/videoCommon';
@@ -15,35 +15,24 @@ import { downloadImgurInfo } from '@/lib/imgur';
 /**
  * Запрос инфы о видео
  */
-export async function getVideoInfo(props: {
-  url: string;
-  event: IpcMainInvokeEvent;
-  reddit: Reddit;
-}): Promise<void> {
-  const { event, url, reddit } = props;
+export async function getVideoInfo(props: { url: string; reddit: Reddit }) {
+  const { url, reddit } = props;
   const idVideoSource = getVideoSource(url);
-  event.sender.send(AppSignals.BACKEND_BUSY, true);
-  let info: MediaSummary;
-  try {
-    if (idVideoSource === 'www.reddit.com') {
-      info = await reddit.getInfo({ urlReddit: url });
-    }
-    if (idVideoSource === 'www.yaplakal.com') {
-      info = await downloadYapPageInfo(url);
-    }
-    if (idVideoSource === 'www.redgifs.com') {
-      info = await downloadRedGifsInfo(url);
-    }
-    if (idVideoSource === 'imgur.com') {
-      info = await downloadImgurInfo(url);
-    }
-    event.sender.send(AppSignals.SEND_VIDEO_INFO, info);
-  } catch (err) {
-    event.sender.send(AppSignals.BACKEND_ERROR, err);
-  } finally {
-    event.sender.send(AppSignals.BACKEND_BUSY, false);
+
+  let info: MediaSummaryPreview;
+  if (idVideoSource === 'www.reddit.com') {
+    info = await reddit.getInfo({ urlReddit: url });
   }
-  return undefined;
+  if (idVideoSource === 'www.yaplakal.com') {
+    info = await downloadYapPageInfo(url);
+  }
+  if (idVideoSource === 'www.redgifs.com') {
+    info = await downloadRedGifsInfo(url);
+  }
+  if (idVideoSource === 'imgur.com') {
+    info = await downloadImgurInfo(url);
+  }
+  return info;
 }
 
 /**

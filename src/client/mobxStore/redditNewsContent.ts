@@ -3,9 +3,8 @@ import { makeAutoObservable } from 'mobx';
 
 import type { RootRedditNewsStore } from './redditNews';
 import { MediaRecordStore } from './mediaRecord';
-import type { MediaSummary, MediaSummaryUi } from '@/types/media';
+import type { MediaSummaryUi, MediaSummaryPreview, MediaPreview } from '@/types/media';
 import { MediaActions } from '@/client/constants/mediaActions';
-import { MediaToTelegram } from './redditNewsUI';
 
 export class RedditNewsContentStore {
   newRecords: Map<string, MediaRecordStore> = new Map();
@@ -17,7 +16,7 @@ export class RedditNewsContentStore {
   /**
    * Загрузить список новых записей из reddit
    */
-  loadRedditNewRecords = (records: MediaSummary[]) => {
+  loadRedditNewRecords = (records: MediaSummaryPreview[]) => {
     // Удалить старые данные
     this.newRecords.clear();
     records.forEach(this.createNewRecordStore);
@@ -26,7 +25,7 @@ export class RedditNewsContentStore {
   /**
    * Создать запись о медиа и положить в хранилище
    */
-  private createNewRecordStore = (value: MediaSummary) => {
+  private createNewRecordStore = (value: MediaSummaryPreview) => {
     const newReddit = new MediaRecordStore(this);
     newReddit.setInfo(value);
     this.newRecords.set(value.id, newReddit);
@@ -77,5 +76,15 @@ export class RedditNewsContentStore {
       data.push({ id, title, url, unSupportTelegram });
     });
     window.electron.ipcRenderer.sendMediaGroupToTg(data, holidayMessage);
+  };
+
+  /**
+   * Установить для медия изображение
+   */
+  setMediaPreview = ({ id, preview }: { id: string; preview: MediaPreview }) => {
+    const media = this.newRecords.get(id);
+    if (media) {
+      media.setMediaPreview({ id, preview });
+    }
   };
 }

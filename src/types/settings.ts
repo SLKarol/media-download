@@ -3,7 +3,6 @@ export interface Settings {
   redditPassword: string;
   redditAppId: string;
   redditApiSecret: string;
-  loadResponsePreview: boolean;
   defaultSavePath: string;
   telegramToken: string;
   telegramGropus: string;

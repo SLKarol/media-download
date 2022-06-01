@@ -27,6 +27,16 @@ export enum AppSignals {
   SEND_VIDEO_INFO = 'app:send-video-info',
 
   /**
+   * Отправить превью медиа
+   */
+  SEND_MEDIA_PREVIEW = 'app:send-media-preview',
+
+  /**
+   * Отправить превью для медиа, состоящего в группе
+   */
+  SEND_MEDIA_GROUP_PREVIEW = 'app:send-mediaGroup-preview',
+
+  /**
    * Открыть ссылку в броузере
    */
   OPEN_URL = 'app:open-url',

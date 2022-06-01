@@ -2,7 +2,6 @@ import axios from 'axios';
 import { parse } from 'node-html-parser';
 
 import type { MediaSummary } from '@/types/media';
-import { decodeImageUrlTo64 } from './images';
 
 export async function downloadImgurInfo(url: string): Promise<MediaSummary> {
   // Получить ID видео
@@ -13,10 +12,7 @@ export async function downloadImgurInfo(url: string): Promise<MediaSummary> {
   // Найти тэг с постером
   const posterTag = root.querySelector('meta[name="twitter:image"]');
   const posterUrl = posterTag ? posterTag.getAttribute('content') : '';
-  let posterDecoded = '';
-  if (posterUrl) {
-    posterDecoded = await decodeImageUrlTo64(posterUrl);
-  }
+
   let element = root.querySelector('meta[name="twitter:player:height"]');
   const height = element ? parseInt(element.getAttribute('content'), 10) : undefined;
   element = root.querySelector('meta[name="twitter:player:width"]');
@@ -30,7 +26,7 @@ export async function downloadImgurInfo(url: string): Promise<MediaSummary> {
     haveVideo: !!urlVideo,
     id,
     idVideoSource: 'imgur.com',
-    previewImages: { decoded: posterDecoded, src: posterUrl },
+    previewImages: { decoded: '', src: posterUrl },
     title,
     height,
     width,

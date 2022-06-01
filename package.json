@@ -1,15 +1,16 @@
 {
   "name": "media-download",
   "productName": "media-download",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Приложение для скачивания медиа с различных хостингов",
   "main": ".webpack/main",
   "scripts": {
-    "start": "electron-forge start",
+    "start": "electron-forge start --inspect-electron",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "eslint --ext .ts,.tsx ."
+    "lint": "eslint --ext .ts,.tsx .",
+    "lint:info": "eslint src --ext .jsx,.js,.tsx,.ts --color || exit 0"
   },
   "keywords": [],
   "author": {
@@ -74,10 +75,10 @@
     "@electron-forge/maker-squirrel": "^6.0.0-beta.63",
     "@electron-forge/maker-zip": "^6.0.0-beta.63",
     "@electron-forge/plugin-webpack": "^6.0.0-beta.63",
-    "@types/react": "^18.0.9",
+    "@types/react": "^18.0.10",
     "@types/react-dom": "^18.0.5",
-    "@typescript-eslint/eslint-plugin": "^5.26.0",
-    "@typescript-eslint/parser": "^5.26.0",
+    "@typescript-eslint/eslint-plugin": "^5.27.0",
+    "@typescript-eslint/parser": "^5.27.0",
     "@vercel/webpack-asset-relocator-loader": "^1.7.2",
     "css-loader": "^6.7.1",
     "electron": "19.0.1",
@@ -117,6 +118,6 @@
     "react-hook-form": "^7.31.3",
     "react-router-dom": "^6.3.0",
     "snoowrap": "^1.23.0",
-    "telegraf": "^4.8.2"
+    "telegraf": "^4.8.3"
   }
 }

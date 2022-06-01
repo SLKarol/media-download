@@ -16,7 +16,7 @@ const { ipcRenderer } = window.electron;
 const RedditNewContainer: FC = () => {
   const {
     redditSubscribeStore: { loadSubscribes },
-    redditNewsContentStore: { loadRedditNewRecords },
+    redditNewsContentStore: { loadRedditNewRecords, setMediaPreview },
     redditNewsUI: { modeSelectMedia },
   } = useRedditNewsStore();
 
@@ -30,6 +30,9 @@ const RedditNewContainer: FC = () => {
     });
     ipcRenderer.redditResponseNews((_, records) => {
       loadRedditNewRecords(records);
+    });
+    ipcRenderer.receiveMediaGroupPreview((_, data) => {
+      setMediaPreview(data);
     });
     return () => {
       ipcRenderer.removeListenerResponseMyReddits();

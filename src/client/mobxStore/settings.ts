@@ -9,7 +9,6 @@ export class SettingsStore {
     redditAppId: '',
     redditPassword: '',
     redditUserName: '',
-    loadResponsePreview: true,
     defaultSavePath: '',
     telegramGropus: '',
     telegramToken: '',

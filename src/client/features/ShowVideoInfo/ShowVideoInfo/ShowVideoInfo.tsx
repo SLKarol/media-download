@@ -23,13 +23,16 @@ const ShowVideoInfo: FunctionComponent<Props> = ({ isOpen }) => {
       videoDescription: { title, haveVideo, id, idVideoSource },
       setInfo,
       onClickAction,
+      setMediaPreview,
     },
   } = useRootStore();
 
   useEffect(() => {
-    // * Привязать событие получение инфы о видео к изменению стейта в mobxStore
     ipcRenderer.receiveVideoInfo((_, value) => {
       setInfo(value);
+    });
+    ipcRenderer.receiveMediaPreview((_, param) => {
+      setMediaPreview(param);
     });
   }, []);
 

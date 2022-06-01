@@ -1,3 +1,5 @@
+import type { ImagePreview } from 'snoowrap/dist/objects/Submission';
+
 /**
  * Информация о видео
  */
@@ -11,7 +13,7 @@ export interface MediaSummary {
    */
   idVideoSource: string;
   title: string;
-  previewImages: MediaPreview;
+  previewImages: Partial<MediaPreview>;
   subReddit?: string;
   over18: boolean;
   haveVideo: boolean;
@@ -39,16 +41,10 @@ export interface MediaSummary {
  */
 export interface MediaPreview {
   decoded: string;
-  resolutions?: ResponsivePreview[];
   src: string;
   width?: number;
   height?: number;
 }
-
-type ResponsivePreview = {
-  decoded: string;
-  width: number;
-};
 
 export type VideoParts = {
   urlVideo: string;
@@ -123,3 +119,10 @@ export type FileInTelegram = {
   title: string;
   animation: boolean;
 };
+
+/**
+ * Медиаресурс с предпросмотром
+ */
+export interface MediaSummaryPreview extends MediaSummary {
+  preview?: { enabled?: boolean; images: ImagePreview[] };
+}

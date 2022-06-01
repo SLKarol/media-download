@@ -3,7 +3,7 @@ import { makeAutoObservable } from 'mobx';
 import type { RootStore } from './root';
 import { MediaActions } from '@/client/constants/mediaActions';
 import type { RedditNewsContentStore } from './redditNewsContent';
-import { MediaSummary } from '@/types/media';
+import { MediaPreview, MediaSummary } from '@/types/media';
 import { IMAGE_SIZE_LIMIT, IMAGE_SUM_DIMENSION_LIMIT } from '@/constants/telegram';
 import { isCorrectRatio } from '@/lib/images';
 
@@ -36,7 +36,37 @@ export class MediaRecordStore {
    * Установить информацию
    */
   setInfo = (value: MediaSummary) => {
-    this.info = { ...value };
+    // Выбрать все пропсы, чтобы отсечь лишнее
+    const {
+      downloadedFileName,
+      haveVideo,
+      id,
+      idVideoSource,
+      over18,
+      previewImages,
+      title,
+      videoParts,
+      height,
+      permalink,
+      subReddit,
+      url,
+      width,
+    } = value;
+    this.info = {
+      downloadedFileName,
+      haveVideo,
+      id,
+      idVideoSource,
+      over18,
+      previewImages,
+      title,
+      videoParts,
+      height,
+      permalink,
+      subReddit,
+      url,
+      width,
+    };
   };
 
   setSendVote = () => {
@@ -53,17 +83,23 @@ export class MediaRecordStore {
 
   get videoDescription() {
     const { width, height, previewImages, ...info } = this.info;
+    const { height: previewImageHeight, width: previewImageWidth } = previewImages;
     // Размеры изображения
-    let dimensions =
-      typeof width === 'number' && typeof height === 'number' ? `${width}x${height}` : '';
-    if (!dimensions) {
-      const { height: h, width: w } = previewImages;
-      dimensions = `${w}${w ? 'x' : ''}${h}`;
+    let dimensions = '';
+
+    if (previewImages && 'width' in previewImages && 'height' in previewImages) {
+      dimensions =
+        previewImageWidth && previewImageHeight
+          ? `${previewImageWidth}${previewImageWidth ? 'x' : ''}${previewImageHeight}`
+          : '';
+    }
+    if (!dimensions && typeof width === 'number' && typeof height === 'number') {
+      dimensions = `${width}x${height}`;
     }
 
     // Не поддерживается телеграм?
     let unSupportTelegram: boolean;
-    const { decoded } = previewImages;
+    const { decoded = '' } = previewImages;
     if (typeof width === 'number' && typeof height === 'number') {
       const sum = width + height;
       unSupportTelegram =
@@ -71,11 +107,10 @@ export class MediaRecordStore {
         isCorrectRatio(width, height) &&
         decoded.length < IMAGE_SIZE_LIMIT;
     } else {
-      const { height: h, width: w } = previewImages;
-      const sum = w + h;
+      const sum = previewImageWidth + previewImageHeight;
       unSupportTelegram =
         sum < IMAGE_SUM_DIMENSION_LIMIT &&
-        isCorrectRatio(w, h) &&
+        isCorrectRatio(previewImageWidth, previewImageHeight) &&
         decoded.length < IMAGE_SIZE_LIMIT;
     }
 
@@ -220,5 +255,14 @@ export class MediaRecordStore {
       url,
       image: decoded,
     });
+  };
+
+  /**
+   * Установить media Preview
+   */
+  setMediaPreview = ({ id, preview }: { id: string; preview: MediaPreview }) => {
+    if (this.info.id === id) {
+      this.info.previewImages = { ...preview };
+    }
   };
 }

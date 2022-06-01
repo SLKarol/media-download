@@ -12,6 +12,8 @@ import { Settings } from './types/settings';
 const EVENTS_HANDLERS = {
   onSelectMenu: AppSignals.MENU_SELECT,
   receiveVideoInfo: AppSignals.SEND_VIDEO_INFO,
+  receiveMediaPreview: AppSignals.SEND_MEDIA_PREVIEW,
+  receiveMediaGroupPreview: AppSignals.SEND_MEDIA_GROUP_PREVIEW,
   onBackendBusy: AppSignals.BACKEND_BUSY,
   receiveSettings: AppSignals.SETTINGS_SEND,
   addJournalRecord: AppSignals.JOURNAL_ADD_RECORD,
@@ -81,6 +83,7 @@ contextBridge.exposeInMainWorld('electron', {
       removeListenerResponseMyReddits: () => {
         ipcRenderer.removeAllListeners(AppSignals.REDDIT_RESPONSE_MY_REDDITS);
         ipcRenderer.removeAllListeners(AppSignals.REDDIT_RESPONSE_NEWS);
+        ipcRenderer.removeAllListeners(AppSignals.SEND_MEDIA_GROUP_PREVIEW);
       },
       getRedditNews: (channel: string) => ipcRenderer.invoke(AppSignals.REDDIT_GET_NEWS, channel),
       /**

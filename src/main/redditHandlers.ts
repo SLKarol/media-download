@@ -1,9 +1,12 @@
 import type { IpcMainInvokeEvent } from 'electron';
-import fs from 'fs/promises';
 
 import { AppSignals } from '@/constants/signals';
 import type { Reddit } from '@/lib/reddit';
+import { decodeImageUrlTo64 } from '@/lib/images';
 
+/**
+ * Запросить список моих подписок
+ */
 export async function getMySubreddit({
   event,
   reddit,
@@ -31,18 +34,37 @@ export async function getRedditNews({
   channel: string;
   event: IpcMainInvokeEvent;
   reddit: Reddit;
-}): Promise<void> {
+}): Promise<unknown> {
   try {
     event.sender.send(AppSignals.BACKEND_BUSY, true);
-    //! В рабочей версии убрать коммент
+    // Получить новые записи из reddit
     const news = await reddit.getNewRecords(channel);
-
-    // fs.writeFile(`${channel}.json`, JSON.stringify(news), { encoding: 'utf8' });
-
-    // const t = await fs.readFile('PornStars.json');
-    // const news = JSON.parse(t.toString());
-
-    event.sender.send(AppSignals.REDDIT_RESPONSE_NEWS, news);
+    const withoutImage = news.filter(({ preview }) => !!preview);
+    // Отправить новые записи клиенту
+    event.sender.send(AppSignals.REDDIT_RESPONSE_NEWS, withoutImage);
+    // Получить постеры к каждой записи
+    const promises = withoutImage.map((n) => {
+      const { id, preview } = n;
+      if ('images' in preview && preview.images.length) {
+        const [firstImage] = preview.images;
+        const {
+          source: { height, url, width },
+        } = firstImage;
+        return decodeImageUrlTo64(url).then((decoded) => {
+          return event.sender.send(AppSignals.SEND_MEDIA_GROUP_PREVIEW, {
+            id,
+            preview: {
+              decoded,
+              src: url,
+              height,
+              width,
+            },
+          });
+        });
+      }
+      return null;
+    });
+    return await Promise.all(promises);
   } catch (err) {
     event.sender.send(AppSignals.BACKEND_ERROR, err);
   } finally {

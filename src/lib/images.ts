@@ -1,3 +1,5 @@
+/* eslint-disable eqeqeq */
+/* eslint-disable no-param-reassign */
 import axios from 'axios';
 
 import { TYPES } from '../constants/mimeTypes';
@@ -22,6 +24,20 @@ export async function decodeImageUrlTo64(url: string) {
   return `data:${mimeTypes};base64,${sourceImageB64}`;
 }
 
+function gcd(a: number, b: number) {
+  if (b > a) {
+    const temp = a;
+    a = b;
+    b = temp;
+  }
+  while (b != 0) {
+    const m = a % b;
+    a = b;
+    b = m;
+  }
+  return a;
+}
+
 /**
  * Расчёт соотношений ширины и высоты
  * @param {number} width
@@ -43,17 +59,3 @@ export const isCorrectRatio = (width: number, height: number) =>
   !calculateRatio(width, height)
     .split(':')
     .some((q) => +q >= 20);
-
-function gcd(a: number, b: number) {
-  if (b > a) {
-    let temp = a;
-    a = b;
-    b = temp;
-  }
-  while (b != 0) {
-    let m = a % b;
-    a = b;
-    b = m;
-  }
-  return a;
-}

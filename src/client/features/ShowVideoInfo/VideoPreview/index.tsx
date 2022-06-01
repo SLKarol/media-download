@@ -8,14 +8,17 @@ import MediaPreviewComponent from '@/client/components/MediaPreviewComponent';
 const VideoPreviewComponent: FC = () => {
   const {
     videoInfo: {
-      info: { previewImages, title },
+      info: {
+        previewImages: { decoded = '' },
+        title,
+      },
     },
     uiState: { appBusy },
   } = useRootStore();
 
-  if (appBusy || !previewImages.decoded) return <NotPreview loading={appBusy} />;
+  if (appBusy || !decoded) return <NotPreview loading={appBusy} />;
 
-  return <MediaPreviewComponent previewImages={previewImages} title={title} />;
+  return <MediaPreviewComponent decoded={decoded} title={title} />;
 };
 
 export default observer(VideoPreviewComponent);

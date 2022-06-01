@@ -3,7 +3,7 @@ import { IpcRendererEvent, IpcRenderer } from 'electron';
 
 import type { StatusJournal } from '@client/mobxStore/journal';
 import type { Subscribe } from '@client/mobxStore/redditSubscribes';
-import { MediaSummary, PropsDownLoadVideo } from './media';
+import { MediaSummary, PropsDownLoadVideo, MediaPreview, MediaSummaryPreview } from './media';
 import { Settings } from './settings';
 
 declare global {
@@ -15,9 +15,23 @@ declare global {
          */
         getInfo(url: string): Promise<string>;
         onBackendBusy: (callback: (_event: IpcRendererEvent, busy: boolean) => void) => IpcRenderer;
+        /**
+         * Получение из бэкенда инфы о видео
+         */
         receiveVideoInfo: (
           callback: (_event: IpcRendererEvent, videoInfo: MediaSummary) => void,
         ) => IpcRenderer;
+
+        /**
+         * Получение из бэкенда превьюхи видео
+         */
+        receiveMediaPreview: (
+          callback: (
+            _event: IpcRendererEvent,
+            params: { id: string; preview: MediaPreview },
+          ) => void,
+        ) => IpcRenderer;
+
         onSelectMenu: (callback: (_event: IpcRendererEvent, value: string) => void) => IpcRenderer;
         /**
          * Открыть ссылку в броузере
@@ -112,7 +126,7 @@ declare global {
          * Получение новых записей из reddit-канала
          */
         redditResponseNews: (
-          callback: (_event: IpcRendererEvent, records: MediaSummary[]) => void,
+          callback: (_event: IpcRendererEvent, records: MediaSummaryPreview[]) => void,
         ) => IpcRenderer;
 
         /**
@@ -156,6 +170,16 @@ declare global {
          * Запросить список праздников
          */
         holidaysGet(): void;
+
+        /**
+         * Получить постер для медиа из группы
+         */
+        receiveMediaGroupPreview: (
+          callback: (
+            _event: IpcRendererEvent,
+            params: { id: string; preview: MediaPreview },
+          ) => void,
+        ) => IpcRenderer;
       };
     };
   }

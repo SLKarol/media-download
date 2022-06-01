@@ -70,5 +70,5 @@ export const TYPES = new Map<string, string>([
   ['ogv', 'video/ogg'],
   ['qt', 'video/quicktime'],
   ['mov', 'video/quicktime'],
-  ['webm', 'video/webm']
+  ['webm', 'video/webm'],
 ]);
