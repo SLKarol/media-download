@@ -84,7 +84,7 @@ export class Reddit {
   };
 
   mySubreddits = async () => {
-    const mySubreddits = await this.client.getSubscriptions();
+    const mySubreddits = await this.client.getSubscriptions({ limit: 50 });
 
     return mySubreddits.map((s) => {
       const { over18, title, url } = s;

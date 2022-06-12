@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite';
 import { Button, H5, Card, Elevation } from '@blueprintjs/core';
 
 import styles from './RedditPreviewCard.module.css';
-import type { MediaToTelegram } from '@/client/mobxStore/redditNewsUI';
+import type { MediaToTelegram } from '@/client/mobxStore/mediaNewsUI';
 
 interface Props extends MediaToTelegram {
   onClick?: MouseEventHandler<HTMLButtonElement>;

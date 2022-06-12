@@ -5,11 +5,11 @@ import { useFormContext } from 'react-hook-form';
 import { Button, Classes, Label } from '@blueprintjs/core';
 
 import { useRootStore } from '@client/mobxStore/root';
-import type { FormState } from './FormSettings';
+import type { FormStateSettings } from '@/types/settings';
 import styles from './DefaultSavePath.module.css';
 
 const DefaultSavePath: FC = () => {
-  const { setValue } = useFormContext<FormState>();
+  const { setValue } = useFormContext<FormStateSettings>();
   // const defaultSavePath = watch('defaultSavePath');
   const {
     settingsStore: {

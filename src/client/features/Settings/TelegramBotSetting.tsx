@@ -2,13 +2,12 @@ import type { FC } from 'react';
 import { useFormContext, Controller } from 'react-hook-form';
 import { FormGroup, Card, H5, InputGroup, Elevation } from '@blueprintjs/core';
 
-import type { FormState } from './FormSettings';
+import type { FormStateSettings } from '@/types/settings';
 
 import styles from './TelegramBotSetting.module.css';
 
 const TelegramBotSetting: FC = () => {
-  const { control } = useFormContext<FormState>();
-
+  const { control } = useFormContext<FormStateSettings>();
   return (
     <Card elevation={Elevation.ONE} className={styles.marginTop}>
       <H5>Настройки Telegram-bot</H5>
@@ -40,7 +39,7 @@ const TelegramBotSetting: FC = () => {
         render={({ field: { ref, ...p } }) => {
           return (
             <FormGroup
-              label="ID телеграмм-групп, в которые можно делать рассылку. Сперва будет разослано в первую группу, затем в остальные"
+              label="ID телеграмм-групп, в которые можно делать рассылку."
               helperText="Список групп через запятую">
               <InputGroup inputRef={ref} {...p} />
             </FormGroup>

@@ -1,18 +1,18 @@
 /* eslint-disable camelcase */
 import type { FC } from 'react';
 import { observer } from 'mobx-react-lite';
-import { Select } from '@blueprintjs/select';
+import { Select2 } from '@blueprintjs/select';
 import { MenuItem, Button, Menu } from '@blueprintjs/core';
 import type { ItemPredicate, ItemRenderer, ItemListRenderer } from '@blueprintjs/select';
 import type { BlueprintIcons_16Id } from '@blueprintjs/icons/lib/esm/generated/16px/blueprint-icons-16';
 
-import { useRedditNewsStore } from '@client/mobxStore/redditNews';
+import { useMediaNewsStore } from '@client/mobxStore/rootMediaNews';
 import { useRootStore } from '@client/mobxStore/root';
 import type { Subscribe } from '@/client/mobxStore/redditSubscribes';
 import styles from './RedditNewsSelectSubscribe.module.css';
 import HighlightText from '@/client/components/HighlightText';
 
-const SubscribeSelect = Select.ofType<Subscribe>();
+const SubscribeSelect = Select2.ofType<Subscribe>();
 
 const itemPredicate: ItemPredicate<Subscribe> = (query, subscribe, _index, exactMatch) => {
   const normalizedTitle = subscribe.id.toLowerCase();
@@ -57,8 +57,8 @@ const itemListRenderer: ItemListRenderer<Subscribe> = ({ items, itemsParentRef, 
 const RedditNewsSelectSubscribe: FC = () => {
   const {
     redditSubscribeStore: { listSubscribes },
-    redditNewsUI: { setSelectedSubscribe, selectedSubscribe },
-  } = useRedditNewsStore();
+    mediaNewsUI: { setSelectedSubscribe, selectedSubscribe },
+  } = useMediaNewsStore();
   const {
     uiState: { appBusy },
   } = useRootStore();

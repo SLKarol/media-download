@@ -2,7 +2,7 @@ import { makeAutoObservable } from 'mobx';
 
 import type { RootStore } from './root';
 import { MediaActions } from '@/client/constants/mediaActions';
-import type { RedditNewsContentStore } from './redditNewsContent';
+import type { MediaNewsContentStore } from './mediaNewsContent';
 import { MediaPreview, MediaSummary } from '@/types/media';
 import { IMAGE_SIZE_LIMIT, IMAGE_SUM_DIMENSION_LIMIT } from '@/constants/telegram';
 import { isCorrectRatio } from '@/lib/images';
@@ -28,7 +28,7 @@ export class MediaRecordStore {
   sendVote = true;
 
   // eslint-disable-next-line no-unused-vars
-  constructor(private rootStore: RootStore | RedditNewsContentStore) {
+  constructor(private rootStore: RootStore | MediaNewsContentStore) {
     makeAutoObservable(this);
   }
 
@@ -82,8 +82,9 @@ export class MediaRecordStore {
   };
 
   get videoDescription() {
-    const { width, height, previewImages, ...info } = this.info;
-    const { height: previewImageHeight, width: previewImageWidth } = previewImages;
+    const { width = undefined, height = undefined, previewImages = {}, ...info } = this.info;
+    const { height: previewImageHeight = undefined, width: previewImageWidth = undefined } =
+      previewImages;
     // Размеры изображения
     let dimensions = '';
 
@@ -153,12 +154,19 @@ export class MediaRecordStore {
       idVideoSource: idSource,
     } = this.info;
     const { sendVote } = this;
+    let titleVideo = title;
+    if (idSource === 'www.yaplakal.com') {
+      const { name } = (this.rootStore as MediaNewsContentStore).rootRedditNewsStore.mediaNewsUI
+        .selectedTopic;
+      titleVideo = name;
+    }
+
     window.electron.ipcRenderer.downloadVideo({
       urlAudio,
       urlVideo,
       idRecord,
-      sendVote,
-      title,
+      sendVote: idSource === 'www.reddit.com' ? sendVote : false,
+      title: titleVideo.length ? titleVideo : 'video',
       idSource,
     });
   };
@@ -211,8 +219,12 @@ export class MediaRecordStore {
 
   openInBrowser = () => {
     const { idVideoSource, permalink, url } = this.info;
+    let openUrl = permalink;
+    if (!openUrl.startsWith('http')) {
+      openUrl = `https://${idVideoSource}${permalink}`;
+    }
     if (permalink) {
-      return window.electron.ipcRenderer.openUrl(`https://${idVideoSource}${permalink}`);
+      return window.electron.ipcRenderer.openUrl(openUrl);
     }
     if (url) {
       return window.electron.ipcRenderer.openUrl(url);
@@ -248,10 +260,11 @@ export class MediaRecordStore {
       title,
       previewImages: { decoded },
       url,
+      idVideoSource,
     } = this.info;
     window.electron.ipcRenderer.sendPictureToTg({
       id,
-      title,
+      title: idVideoSource === 'www.reddit.com' ? title : '',
       url,
       image: decoded,
     });

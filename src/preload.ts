@@ -20,6 +20,9 @@ const EVENTS_HANDLERS = {
   redditResponseMyReddits: AppSignals.REDDIT_RESPONSE_MY_REDDITS,
   redditResponseNews: AppSignals.REDDIT_RESPONSE_NEWS,
   holidaysResponse: AppSignals.HOLIDAYS_RESPONSE,
+  yaplakalResponseNews: AppSignals.YAPLAKAL_RESPONSE_NEWS,
+  yaplakalResponseTopic: AppSignals.YAPLAKAL_RESPONSE_TOPIC,
+  yaplakalResponseTopicPreview: AppSignals.YAPLAKAL_RESPONSE_TOPIC_PREVIEW,
 };
 
 /**
@@ -111,7 +114,29 @@ contextBridge.exposeInMainWorld('electron', {
         helloMessage: string,
       ) => ipcRenderer.invoke(AppSignals.TELEGRAM_SEND_MEDIA_GROUP, medias, helloMessage),
 
+      /**
+       * Список праздников
+       */
       holidaysGet: () => ipcRenderer.invoke(AppSignals.HOLIDAYS_GET),
+
+      /**
+       * Получить новые записи из YaPlakal
+       */
+      getYaplakalNews: (url: string) => ipcRenderer.invoke(AppSignals.YAPLAKAL_GET_NEWS, url),
+
+      /**
+       * Отписаться от событий YaPlakal-новостей
+       */
+      removeListenersYaplakalnews: () => {
+        ipcRenderer.removeAllListeners(AppSignals.YAPLAKAL_RESPONSE_NEWS);
+        ipcRenderer.removeAllListeners(AppSignals.YAPLAKAL_RESPONSE_TOPIC);
+        ipcRenderer.removeAllListeners(AppSignals.YAPLAKAL_RESPONSE_TOPIC_PREVIEW);
+      },
+
+      /**
+       * Получить ЯП тему
+       */
+      getYaplakalTopic: (url: string) => ipcRenderer.invoke(AppSignals.YAPLAKAL_GET_TOPIC, url),
     },
     ...handlersOfCallBack,
   ),

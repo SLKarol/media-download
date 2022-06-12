@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useFormContext, Controller } from 'react-hook-form';
 import { FormGroup, Card, H5, InputGroup, Button, Intent, Elevation } from '@blueprintjs/core';
 
-import type { FormState } from './FormSettings';
+import type { FormStateSettings } from '@/types/settings';
 
 const { ipcRenderer } = window.electron;
 
@@ -13,7 +13,7 @@ const RedditSettings: FC = () => {
     setFocus,
     watch,
     formState: { errors },
-  } = useFormContext<FormState>();
+  } = useFormContext<FormStateSettings>();
 
   useEffect(() => {
     setFocus('redditUserName');

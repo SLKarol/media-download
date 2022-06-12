@@ -2,14 +2,14 @@ import type { FC } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Checkbox, H6 } from '@blueprintjs/core';
 
-import { useRedditNewsStore } from '@client/mobxStore/redditNews';
-import styles from './RedditNewsSelectedSub.module.css';
-import SelectedImagesForTelegram from './SelectedImagesForTelegram';
+import { useMediaNewsStore } from '@client/mobxStore/rootMediaNews';
+import styles from './index.module.css';
+import SelectedRedditImagesToTelegram from './SelectedRedditImagesToTelegram';
 
 const RedditNewsSelectedSub: FC = () => {
   const {
-    redditNewsUI: { selectedSubscribe, sendVote, toggleSendVote },
-  } = useRedditNewsStore();
+    mediaNewsUI: { selectedSubscribe, sendVote, toggleSendVote },
+  } = useMediaNewsStore();
   if (!selectedSubscribe) return null;
   return (
     <div className={styles.component}>
@@ -20,7 +20,7 @@ const RedditNewsSelectedSub: FC = () => {
         label="Во время скачивания проголосовать"
         onChange={toggleSendVote}
       />
-      <SelectedImagesForTelegram />
+      <SelectedRedditImagesToTelegram />
     </div>
   );
 };

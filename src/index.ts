@@ -53,6 +53,7 @@ const createWindow = (): void => {
       telegramToken: '',
       telegramGropus: '',
       telegramAdmin: '',
+      yaPlakal: { listForums: {} },
     },
   });
   const menuBuilder = new MenuBuilder(mainWindow, store);

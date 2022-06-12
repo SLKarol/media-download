@@ -1,15 +1,16 @@
 /* eslint-disable no-unused-vars */
 import { makeAutoObservable } from 'mobx';
 
-import type { RootRedditNewsStore } from './redditNews';
+import type { RootMediaNewsStore } from './rootMediaNews';
 import { MediaRecordStore } from './mediaRecord';
 import type { MediaSummaryUi, MediaSummaryPreview, MediaPreview } from '@/types/media';
 import { MediaActions } from '@/client/constants/mediaActions';
+import { HasPrevNextPage } from '@/types/mediaForum';
 
-export class RedditNewsContentStore {
+export class MediaNewsContentStore {
   newRecords: Map<string, MediaRecordStore> = new Map();
 
-  constructor(private rootRedditNewsStore: RootRedditNewsStore) {
+  constructor(public rootRedditNewsStore: RootMediaNewsStore) {
     makeAutoObservable(this);
   }
 
@@ -37,9 +38,17 @@ export class RedditNewsContentStore {
   get newRecordsUiData(): Partial<MediaSummaryUi>[] {
     const re: Partial<MediaSummaryUi>[] = [];
     this.newRecords.forEach((record) => {
-      const { title, previewImages, dimensions, haveVideo, id, unSupportTelegram } =
+      const { title, previewImages, dimensions, haveVideo, id, unSupportTelegram, idVideoSource } =
         record.videoDescription;
-      re.push({ title, previewImages, dimensions, haveVideo, id, unSupportTelegram });
+      re.push({
+        title,
+        previewImages,
+        dimensions,
+        haveVideo,
+        id,
+        unSupportTelegram,
+        idVideoSource,
+      });
     });
     return re;
   }
@@ -68,12 +77,12 @@ export class RedditNewsContentStore {
    */
   sendMediaToTg = (holidayMessage?: string) => {
     const {
-      redditNewsUI: { mediaToTelegram },
+      mediaNewsUI: { mediaToTelegram, sendTitleMedia },
     } = this.rootRedditNewsStore;
     const data: { id: string; title: string; url: string; unSupportTelegram: boolean }[] = [];
     mediaToTelegram.forEach((m) => {
       const { id, title, url, unSupportTelegram = false } = m;
-      data.push({ id, title, url, unSupportTelegram });
+      data.push({ id, title: sendTitleMedia ? title : undefined, url, unSupportTelegram });
     });
     window.electron.ipcRenderer.sendMediaGroupToTg(data, holidayMessage);
   };
@@ -81,10 +90,16 @@ export class RedditNewsContentStore {
   /**
    * Установить для медия изображение
    */
-  setMediaPreview = ({ id, preview }: { id: string; preview: MediaPreview }) => {
+  setMediaPreview = ({ id, preview }: { id: string; preview: Partial<MediaPreview> }) => {
     const media = this.newRecords.get(id);
     if (media) {
-      media.setMediaPreview({ id, preview });
+      media.setMediaPreview({ id, preview: preview as MediaPreview });
     }
+  };
+
+  loadMediaForum = (data: { media: Partial<MediaSummaryPreview>[]; pages: HasPrevNextPage }) => {
+    const { media, pages } = data;
+    this.rootRedditNewsStore.mediaNewsUI.setTopicPagesData(pages);
+    media.forEach(this.createNewRecordStore);
   };
 }

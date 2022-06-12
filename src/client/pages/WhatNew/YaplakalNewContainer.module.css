@@ -1,0 +1,27 @@
+.component {
+  width: 100%;
+  display: block;
+  box-sizing: border-box;
+  margin-top: 1rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+@media (min-width:600px) {
+  .component {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+@media (min-width:1280px) {
+  .component {
+    max-width: 1280px;
+  }
+}
+
+.line {
+  border-top: 1px solid #184A90;
+}

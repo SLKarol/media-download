@@ -43,6 +43,9 @@ const Main = () => {
         if (menuId === 'new:reddit') {
           return navigate('/redditNew/');
         }
+        if (menuId === 'new:yaplakal') {
+          return navigate('/yaplakalNew/');
+        }
         return undefined;
       });
       ipcRenderer.onBackendBusy((_, value) => {

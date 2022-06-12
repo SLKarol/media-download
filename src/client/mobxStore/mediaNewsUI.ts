@@ -2,8 +2,8 @@
 import { makeAutoObservable } from 'mobx';
 
 import { randomIntFromInterval } from '@/lib/utils';
-import type { RootRedditNewsStore } from './redditNews';
-import { MediaRecordStore } from './mediaRecord';
+import type { RootMediaNewsStore } from './rootMediaNews';
+import { HasPrevNextPage, MediaForum } from '@/types/mediaForum';
 
 export interface MediaToTelegram {
   id: string;
@@ -14,7 +14,7 @@ export interface MediaToTelegram {
   decoded: string;
   unSupportTelegram?: boolean;
 }
-export class RedditNewsUI {
+export class MediaNewsUIStore {
   /**
    * Выбранный канал
    */
@@ -41,7 +41,27 @@ export class RedditNewsUI {
    */
   enableSendHolidayName = true;
 
-  constructor(private rootStore: RootRedditNewsStore) {
+  /**
+   * Выбранный форум
+   */
+  selectedForum: MediaForum | null = null;
+
+  /**
+   * Страницы для топика
+   */
+  topicPages: HasPrevNextPage = { next: false, prev: false, current: 1 };
+
+  /**
+   * Выбранный топик
+   */
+  selectedTopic: { href: string; name: string } = { href: '', name: '' };
+
+  /**
+   * Отправлять заголовок медиа?
+   */
+  sendTitleMedia = true;
+
+  constructor(private rootStore: RootMediaNewsStore) {
     makeAutoObservable(this);
   }
 
@@ -83,7 +103,7 @@ export class RedditNewsUI {
    */
   get countMediaToTelegram() {
     // Получить список ID записей выбранного
-    const keysMediaIdsRecords = this.rootStore.redditNewsContentStore.listIds;
+    const keysMediaIdsRecords = this.rootStore.mediaNewsContentStore.listIds;
     const allSelected = this.mediaToTelegram.size;
     let currentSelected = 0;
     keysMediaIdsRecords.forEach((key) => {
@@ -98,7 +118,7 @@ export class RedditNewsUI {
    * Очистить выбранные ID
    */
   clearMediaToTelegramFromChannel = () => {
-    this.rootStore.redditNewsContentStore.listIds.forEach((id) => {
+    this.rootStore.mediaNewsContentStore.listIds.forEach((id) => {
       if (this.mediaToTelegram.has(id)) this.mediaToTelegram.delete(id);
     });
   };
@@ -118,7 +138,7 @@ export class RedditNewsUI {
           previewImages: { decoded },
           unSupportTelegram,
         },
-      } = this.rootStore.redditNewsContentStore.newRecords.get(idMedia);
+      } = this.rootStore.mediaNewsContentStore.newRecords.get(idMedia);
       this.mediaToTelegram.set(idMedia, { id, url, title, decoded, unSupportTelegram });
     }
   };
@@ -148,5 +168,35 @@ export class RedditNewsUI {
 
   toggleEnabledSendHolidayName = () => {
     this.enableSendHolidayName = !this.enableSendHolidayName;
+  };
+
+  /**
+   * Изменить форум
+   */
+  setSelectedForum = ({ description, url }: MediaForum) => {
+    if (!this.selectedForum || url !== this.selectedForum.url) {
+      this.selectedForum = { description, url };
+    }
+  };
+
+  clearTopicPages = () => {
+    this.topicPages.next = false;
+    this.topicPages.prev = false;
+  };
+
+  setTopicPagesData = ({ next, prev, current }: HasPrevNextPage) => {
+    this.topicPages.next = next;
+    this.topicPages.prev = prev;
+    this.topicPages.current = current;
+  };
+
+  setSelectedTopic = (topic: { href: string; name: string }) => {
+    const { href, name } = topic;
+    this.selectedTopic.href = href;
+    this.selectedTopic.name = name;
+  };
+
+  toggleSendTitleMedia = () => {
+    this.sendTitleMedia = !this.sendTitleMedia;
   };
 }

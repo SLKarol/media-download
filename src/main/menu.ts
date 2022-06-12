@@ -78,6 +78,13 @@ export default class MenuBuilder {
               this.mainWindow.webContents.send(AppSignals.MENU_SELECT, 'new:reddit');
             },
           },
+          {
+            label: 'ЯПлакалъ',
+            accelerator: 'CmdOrCtrl+Shift+Y',
+            click: () => {
+              this.mainWindow.webContents.send(AppSignals.MENU_SELECT, 'new:yaplakal');
+            },
+          },
         ],
       },
       {

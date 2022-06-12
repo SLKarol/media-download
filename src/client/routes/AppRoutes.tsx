@@ -5,6 +5,7 @@ import VideoContent from '@client/pages/VideoContent/VideoContent';
 import Settings from '@client/pages/Settings';
 import ReportDownload from '@client/pages/ReportDownload';
 import RedditNew from '@client/pages/WhatNew/RedditNew';
+import YaplakalNew from '@client/pages/WhatNew/YaplakalNew';
 
 const AppRoutes = () => {
   return (
@@ -14,6 +15,7 @@ const AppRoutes = () => {
       <Route path="/settings/" element={<Settings />} />
       <Route path="/reportDownload/" element={<ReportDownload />} />
       <Route path="/redditNew/" element={<RedditNew />} />
+      <Route path="/yaplakalNew/" element={<YaplakalNew />} />
     </Routes>
   );
 };

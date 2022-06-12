@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite';
 import { Checkbox, Button } from '@blueprintjs/core';
 
 import { useRootStore } from '@client/mobxStore/root';
-import { useRedditNewsStore } from '@client/mobxStore/redditNews';
+import { useMediaNewsStore } from '@client/mobxStore/rootMediaNews';
 import styles from './index.module.css';
 
 const RedditNewsTodayHoliday: FC = () => {
@@ -12,8 +12,8 @@ const RedditNewsTodayHoliday: FC = () => {
   } = useRootStore();
 
   const {
-    redditNewsUI: { enableSendHolidayName, toggleEnabledSendHolidayName },
-  } = useRedditNewsStore();
+    mediaNewsUI: { enableSendHolidayName, toggleEnabledSendHolidayName },
+  } = useMediaNewsStore();
 
   return (
     <div className={styles.container}>

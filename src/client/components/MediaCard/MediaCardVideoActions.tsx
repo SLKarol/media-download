@@ -1,7 +1,7 @@
+/* eslint-disable no-unused-vars */
 import type { FC, MouseEventHandler } from 'react';
 import { observer } from 'mobx-react-lite';
 
-import { useRedditNewsStore } from '@client/mobxStore/redditNews';
 import { useRootStore } from '@client/mobxStore/root';
 
 import VideoActions from '@client/components/VideoActions';
@@ -9,15 +9,14 @@ import { MediaActions } from '@/client/constants/mediaActions';
 
 interface Props {
   id: string;
+  onSelectMediaAction: (id: string, action: MediaActions) => void;
+  idVideoSource: string;
 }
 
-const MediaCardVideoActions: FC<Props> = ({ id }) => {
+const MediaCardVideoActions: FC<Props> = ({ id, onSelectMediaAction, idVideoSource }) => {
   const {
     uiState: { appBusy },
   } = useRootStore();
-  const {
-    redditNewsContentStore: { onSelectMediaAction },
-  } = useRedditNewsStore();
 
   const onClick: MouseEventHandler<HTMLButtonElement> = (e) => {
     const { currentTarget } = e;
@@ -25,7 +24,14 @@ const MediaCardVideoActions: FC<Props> = ({ id }) => {
     onSelectMediaAction(id, action as MediaActions);
   };
 
-  return <VideoActions idMedia={id} visibleVote disabled={appBusy} onClick={onClick} />;
+  return (
+    <VideoActions
+      idMedia={id}
+      visibleVote={idVideoSource === 'www.reddit.com'}
+      disabled={appBusy}
+      onClick={onClick}
+    />
+  );
 };
 
 export default observer(MediaCardVideoActions);

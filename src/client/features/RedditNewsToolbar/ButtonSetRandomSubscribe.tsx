@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import { Button } from '@blueprintjs/core';
 import { observer } from 'mobx-react-lite';
 
-import { useRedditNewsStore } from '@client/mobxStore/redditNews';
+import { useMediaNewsStore } from '@client/mobxStore/rootMediaNews';
 import { useRootStore } from '@client/mobxStore/root';
 
 const ButtonSetRandomSubscribe: FC = () => {
@@ -11,8 +11,8 @@ const ButtonSetRandomSubscribe: FC = () => {
   } = useRootStore();
 
   const {
-    redditNewsUI: { setRandomSubscription },
-  } = useRedditNewsStore();
+    mediaNewsUI: { setRandomSubscription },
+  } = useMediaNewsStore();
   return (
     <Button
       icon="random"

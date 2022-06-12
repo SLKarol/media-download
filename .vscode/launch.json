@@ -7,16 +7,6 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Electron Main",
-      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron-forge-vscode-nix",
-      "windows": {
-        "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron-forge-vscode-win.cmd"
-      },
-      "cwd": "${workspaceFolder}"
-    },
-    {
-      "type": "node",
-      "request": "launch",
       "name": "Debug Main Process",
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
       "program": "${workspaceRoot}/index.js",
@@ -38,13 +28,20 @@
       "webRoot": "${workspaceRoot}/html"
     },
     {
+      "name": "Current TS File",
       "type": "node",
-      "request": "attach",
-      "name": "Attach to Main Process",
-      "address": "localhost",
-      "port": 5858,
-      "localRoot": "${workspaceRoot}",
-      "remoteRoot": "${workspaceRoot}"
+      "request": "launch",
+      "args": [
+        "${relativeFile}"
+      ],
+      "runtimeArgs": [
+        "--nolazy",
+        "-r",
+        "ts-node/register"
+      ],
+      "sourceMaps": true,
+      "cwd": "${workspaceRoot}",
+      "protocol": "inspector",
     },
   ]
 }

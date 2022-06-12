@@ -4,7 +4,6 @@ import { SettingsStore } from './settings';
 import { UiStateStore } from './uiState';
 import { MediaRecordStore } from './mediaRecord';
 import { JournalStore } from './journal';
-import { TelegramNewsLetterStore } from './telegramNewsLetter';
 import { HolidaysStore } from './holydays';
 
 export class RootStore {
@@ -15,8 +14,6 @@ export class RootStore {
   videoInfo: MediaRecordStore;
 
   journalStore: JournalStore;
-
-  telegramNewsLetterStore: TelegramNewsLetterStore;
 
   holidaysStore: HolidaysStore;
 

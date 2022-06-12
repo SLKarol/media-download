@@ -5,6 +5,7 @@ import type { StatusJournal } from '@client/mobxStore/journal';
 import type { Subscribe } from '@client/mobxStore/redditSubscribes';
 import { MediaSummary, PropsDownLoadVideo, MediaPreview, MediaSummaryPreview } from './media';
 import { Settings } from './settings';
+import { YaPlakalForumProperties, HasPrevNextPage } from './yplakal';
 
 declare global {
   interface Window {
@@ -178,6 +179,44 @@ declare global {
           callback: (
             _event: IpcRendererEvent,
             params: { id: string; preview: MediaPreview },
+          ) => void,
+        ) => IpcRenderer;
+
+        /**
+         * Получить новые записи из форума YaPlakal
+         */
+        getYaplakalNews(url: string): void;
+
+        /**
+         * Удалить обработчики ЯПновости
+         */
+        removeListenersYaplakalnews(): void;
+        /**
+         * Получение списка форумов из ЯП
+         */
+        yaplakalResponseNews: (
+          callback: (_event: IpcRendererEvent, list: YaPlakalForumProperties[]) => void,
+        ) => IpcRenderer;
+
+        /**
+         * Получить ЯП тему
+         */
+        getYaplakalTopic(url: string): void;
+
+        /**
+         * Ответ: Топик ЯП
+         */
+        yaplakalResponseTopic: (
+          callback: (
+            _event: IpcRendererEvent,
+            data: { media: Partial<MediaSummaryPreview>[]; pages: HasPrevNextPage },
+          ) => void,
+        ) => IpcRenderer;
+
+        yaplakalResponseTopicPreview: (
+          callback: (
+            _event: IpcRendererEvent,
+            params: { id: string; preview: Partial<MediaPreview> },
           ) => void,
         ) => IpcRenderer;
       };

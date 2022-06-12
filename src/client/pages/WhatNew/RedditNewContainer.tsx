@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import { useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 
-import { useRedditNewsStore } from '@client/mobxStore/redditNews';
+import { useMediaNewsStore } from '@client/mobxStore/rootMediaNews';
 import styles from './RedditNewContainer.module.css';
 import RedditNewsToolbar from '@/client/features/RedditNewsToolbar';
 import RedditNewsSelectedSub from '@/client/features/RedditNewsSelectedSub';
@@ -16,9 +16,9 @@ const { ipcRenderer } = window.electron;
 const RedditNewContainer: FC = () => {
   const {
     redditSubscribeStore: { loadSubscribes },
-    redditNewsContentStore: { loadRedditNewRecords, setMediaPreview },
-    redditNewsUI: { modeSelectMedia },
-  } = useRedditNewsStore();
+    mediaNewsContentStore: { loadRedditNewRecords, setMediaPreview },
+    mediaNewsUI: { modeSelectMedia },
+  } = useMediaNewsStore();
 
   useEffect(() => {
     ipcRenderer.getMySubreddit();
@@ -36,7 +36,6 @@ const RedditNewContainer: FC = () => {
     });
     return () => {
       ipcRenderer.removeListenerResponseMyReddits();
-      // todo clear stores
     };
   }, []);
 

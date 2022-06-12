@@ -134,4 +134,29 @@ export enum AppSignals {
    * Получить список праздников
    */
   HOLIDAYS_RESPONSE = 'holidays:response',
+
+  /**
+   * Запросить новые записи из YaPlakal
+   */
+  YAPLAKAL_GET_NEWS = 'yaplakal:get-news',
+
+  /**
+   * Ответ ЯП- список новостей
+   */
+  YAPLAKAL_RESPONSE_NEWS = 'yaplakal:response-news',
+
+  /**
+   * Запросить топик
+   */
+  YAPLAKAL_GET_TOPIC = 'yaplakal:get-topic',
+
+  /**
+   * Ответ ЯП- топик форума
+   */
+  YAPLAKAL_RESPONSE_TOPIC = 'yaplakal:response-topic',
+
+  /**
+   * Ответ ЯП- топик форума, превью медиа
+   */
+  YAPLAKAL_RESPONSE_TOPIC_PREVIEW = 'yaplakal:response-topic-preview',
 }

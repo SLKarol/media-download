@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Checkbox } from '@blueprintjs/core';
 
-import { useRedditNewsStore } from '@client/mobxStore/redditNews';
+import { useMediaNewsStore } from '@client/mobxStore/rootMediaNews';
 import styles from './SelectThisMediaForTelegram.module.css';
 import SelectThisMediaLabel from './SelectThisMediaLabel';
 
@@ -14,8 +14,8 @@ interface Props {
 
 const SelectThisMediaForTelegram: FC<Props> = ({ id, unSupportTelegram, checked }) => {
   const {
-    redditNewsUI: { toggleMediaToTelegram },
-  } = useRedditNewsStore();
+    mediaNewsUI: { toggleMediaToTelegram },
+  } = useMediaNewsStore();
 
   return (
     <Checkbox

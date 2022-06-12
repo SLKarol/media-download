@@ -5,8 +5,11 @@ import MediaPreviewComponent from '@client/components/MediaPreviewComponent';
 import type { MediaSummaryUi } from '@/types/media';
 import styles from './index.module.css';
 import MediaCardVideoActions from './MediaCardVideoActions';
+import type { MediaActions } from '@/client/constants/mediaActions';
 
-type Props = Partial<MediaSummaryUi>;
+interface Props extends Partial<MediaSummaryUi> {
+  onSelectMediaAction?: (id: string, action: MediaActions) => void;
+}
 
 const MediaCard: FC<PropsWithChildren<Props>> = ({
   title,
@@ -14,13 +17,19 @@ const MediaCard: FC<PropsWithChildren<Props>> = ({
   dimensions,
   id,
   children,
+  onSelectMediaAction,
+  idVideoSource,
 }) => {
   return (
     <Card elevation={Elevation.ONE} className={styles.component}>
       <H5>{title}</H5>
       <MediaPreviewComponent decoded={previewImages?.decoded} title={title} />
       <span>{dimensions}</span>
-      <MediaCardVideoActions id={id} />
+      <MediaCardVideoActions
+        id={id}
+        onSelectMediaAction={onSelectMediaAction}
+        idVideoSource={idVideoSource}
+      />
       {children}
     </Card>
   );

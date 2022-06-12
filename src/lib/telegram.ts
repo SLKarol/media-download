@@ -4,7 +4,7 @@
 import { Context, Telegraf } from 'telegraf';
 import delay from '@stanislavkarol/delay';
 
-import { FileInTelegram, FileSendTelegram } from '@/types/media';
+import { FileInTelegram } from '@/types/media';
 import { DELAY_SECONDS } from '@/constants/telegram';
 
 /**

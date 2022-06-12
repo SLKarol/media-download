@@ -1,12 +1,11 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
-import { rm, writeFile, readFile } from 'fs/promises';
+import { rm } from 'fs/promises';
 import { existsSync } from 'fs';
 import { randomUUID } from 'crypto';
 import type { IpcMainInvokeEvent } from 'electron';
 import { app, Notification } from 'electron';
 import type { Telegraf } from 'telegraf';
-import type { Message } from 'telegraf/typings/core/types/typegram';
 import delay from '@stanislavkarol/delay';
 
 import { StatusJournal } from '@client/mobxStore/journal';
@@ -193,6 +192,9 @@ export async function sendPictureInTgGroup(params: {
   return true;
 }
 
+/**
+ * Отправить медиа-группу в telegram
+ */
 export async function sendMediaGroupToTg(params: {
   media: FileSendTelegram[];
   telegramBot: Telegraf;
@@ -200,11 +202,6 @@ export async function sendMediaGroupToTg(params: {
   telegramAdmin: string;
 }): Promise<unknown> {
   const { media, telegramBot, telegramGropus, telegramAdmin } = params;
-  // Вместо закомментированного блока буду работать с файлом savedFiles.json
-  // Вместо media отправлю dataJson
-
-  // const f1 = await readFile('telegram.json');
-  // const dataJson = JSON.parse(f1.toString()) as FileSendTelegram[];
   // Отсечь галереи
   const data = media.filter((d) => !d.url.startsWith('https://www.reddit.com/gallery/'));
 
@@ -246,10 +243,6 @@ export async function sendMediaGroupToTg(params: {
     });
     return files;
   });
-
-  // await writeFile('savedFiles.json', JSON.stringify(savedFiles), { encoding: 'utf8' });
-  // const f2 = await readFile('savedFiles.json');
-  // const savedFiles = JSON.parse(f2.toString()) as FileInTelegram[];
 
   // 1. Отправить с GIF
   const dataWithGif = savedFiles.filter((d) => d.animation);

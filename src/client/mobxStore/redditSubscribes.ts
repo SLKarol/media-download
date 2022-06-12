@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import { makeAutoObservable } from 'mobx';
 
-import type { RootRedditNewsStore } from './redditNews';
+import type { RootMediaNewsStore } from './rootMediaNews';
 
 export interface Subscribe {
   id: string;
@@ -50,7 +50,7 @@ export class RedditSubscribeStore {
   subscribes: RedditSubscribe[] = [];
 
   // eslint-disable-next-line no-unused-vars
-  constructor(private rootStore: RootRedditNewsStore) {
+  constructor(private rootStore: RootMediaNewsStore) {
     makeAutoObservable(this);
   }
 

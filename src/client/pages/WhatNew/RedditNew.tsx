@@ -1,16 +1,16 @@
 import type { FC } from 'react';
 import { useMemo } from 'react';
 
-import { RootRedditNewsStore, RootRedditNewsStoreContext } from '@client/mobxStore/redditNews';
+import { RootMediaNewsStoreContext, RootMediaNewsStore } from '@client/mobxStore/rootMediaNews';
 import RedditNewContainer from './RedditNewContainer';
 
 const RedditNew: FC = () => {
-  const providerValue = useMemo(() => new RootRedditNewsStore(), []);
+  const providerValue = useMemo(() => new RootMediaNewsStore(), []);
 
   return (
-    <RootRedditNewsStoreContext.Provider value={providerValue}>
+    <RootMediaNewsStoreContext.Provider value={providerValue}>
       <RedditNewContainer />
-    </RootRedditNewsStoreContext.Provider>
+    </RootMediaNewsStoreContext.Provider>
   );
 };
 
