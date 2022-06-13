@@ -56,3 +56,26 @@ export async function getYaplakalTopic({ event, url }: { url: string; event: Ipc
     event.sender.send(AppSignals.BACKEND_BUSY, false);
   }
 }
+
+export async function getYaplakalTopicName({
+  event,
+  url,
+}: {
+  url: string;
+  event: IpcMainInvokeEvent;
+}): Promise<void> {
+  event.sender.send(AppSignals.BACKEND_BUSY, true);
+  try {
+    const page = await axios.get(`https://www.yaplakal.com/${url}`, {
+      httpsAgent,
+      responseType: 'text',
+    });
+    const rootPage = parse(page.data);
+    event.sender.send(AppSignals.YAPLAKAL_RESPONSE_TOPIC_NAME, {
+      name: rootPage.querySelector('.subpage').innerText,
+      href: url,
+    });
+  } catch (err) {
+    event.sender.send(AppSignals.BACKEND_ERROR, err);
+  }
+}

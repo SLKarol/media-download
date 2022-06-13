@@ -159,4 +159,10 @@ export enum AppSignals {
    * Ответ ЯП- топик форума, превью медиа
    */
   YAPLAKAL_RESPONSE_TOPIC_PREVIEW = 'yaplakal:response-topic-preview',
+
+  /**
+   * Взять название топика ЯП
+   */
+  YAPLAKAL_GET_TOPIC_NAME = 'yaplakal:get-topic-name',
+  YAPLAKAL_RESPONSE_TOPIC_NAME = 'yaplakal:response-topic-name',
 }

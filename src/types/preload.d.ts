@@ -219,6 +219,15 @@ declare global {
             params: { id: string; preview: Partial<MediaPreview> },
           ) => void,
         ) => IpcRenderer;
+
+        /**
+         * Взять название топика
+         */
+        getYaplakalTopicName(topic: string): void;
+
+        yaplakalResponseTopicName: (
+          callback: (_event: IpcRendererEvent, data: { href: string; name: string }) => void,
+        ) => IpcRenderer;
       };
     };
   }

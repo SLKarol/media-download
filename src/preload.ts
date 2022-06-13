@@ -23,6 +23,7 @@ const EVENTS_HANDLERS = {
   yaplakalResponseNews: AppSignals.YAPLAKAL_RESPONSE_NEWS,
   yaplakalResponseTopic: AppSignals.YAPLAKAL_RESPONSE_TOPIC,
   yaplakalResponseTopicPreview: AppSignals.YAPLAKAL_RESPONSE_TOPIC_PREVIEW,
+  yaplakalResponseTopicName: AppSignals.YAPLAKAL_RESPONSE_TOPIC_NAME,
 };
 
 /**
@@ -131,12 +132,16 @@ contextBridge.exposeInMainWorld('electron', {
         ipcRenderer.removeAllListeners(AppSignals.YAPLAKAL_RESPONSE_NEWS);
         ipcRenderer.removeAllListeners(AppSignals.YAPLAKAL_RESPONSE_TOPIC);
         ipcRenderer.removeAllListeners(AppSignals.YAPLAKAL_RESPONSE_TOPIC_PREVIEW);
+        ipcRenderer.removeAllListeners(AppSignals.YAPLAKAL_RESPONSE_TOPIC_NAME);
       },
 
       /**
        * Получить ЯП тему
        */
       getYaplakalTopic: (url: string) => ipcRenderer.invoke(AppSignals.YAPLAKAL_GET_TOPIC, url),
+
+      getYaplakalTopicName: (url: string) =>
+        ipcRenderer.invoke(AppSignals.YAPLAKAL_GET_TOPIC_NAME, url),
     },
     ...handlersOfCallBack,
   ),

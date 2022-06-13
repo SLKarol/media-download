@@ -6,16 +6,9 @@ import styles from './YaTopicName.module.css';
 
 const YaTopicName: FC = () => {
   const {
-    mediaNewsUI: {
-      selectedForum: { description },
-      selectedTopic: { name },
-    },
+    mediaNewsUI: { fullNameSelectedforum },
   } = useMediaNewsStore();
-  return (
-    <div className={styles.component}>
-      {description} - {name}
-    </div>
-  );
+  return <div className={styles.component}>{fullNameSelectedforum}</div>;
 };
 
 export default observer(YaTopicName);

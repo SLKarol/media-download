@@ -199,4 +199,10 @@ export class MediaNewsUIStore {
   toggleSendTitleMedia = () => {
     this.sendTitleMedia = !this.sendTitleMedia;
   };
+
+  get fullNameSelectedforum() {
+    const { selectedForum, selectedTopic } = this;
+    const selectedForumDescription = selectedForum ? `${selectedForum.description} - ` : '';
+    return selectedForumDescription + selectedTopic.name;
+  }
 }

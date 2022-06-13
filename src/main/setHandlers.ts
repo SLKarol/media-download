@@ -21,7 +21,7 @@ import { StatusJournal } from '@/client/mobxStore/journal';
 import { getHolydaysToday } from '@/lib/holidays';
 import { getPreviewImage } from '@/lib/redditUtils';
 import { decodeImageUrlTo64 } from '@/lib/images';
-import { getYaPlakalNews, getYaplakalTopic } from './yaplakalHandlers';
+import { getYaPlakalNews, getYaplakalTopic, getYaplakalTopicName } from './yaplakalHandlers';
 
 export function setHandlers(props: {
   store: Store<Settings>;
@@ -231,5 +231,10 @@ export function setHandlers(props: {
   ipcMain.handle(AppSignals.YAPLAKAL_GET_TOPIC, (event, ...args) => {
     const [url] = args as string[];
     getYaplakalTopic({ url, event });
+  });
+
+  ipcMain.handle(AppSignals.YAPLAKAL_GET_TOPIC_NAME, (event, ...args) => {
+    const [url] = args as string[];
+    getYaplakalTopicName({ event, url });
   });
 }

@@ -16,6 +16,7 @@ const YaplakalNewContainer: FC = () => {
   const {
     listForums: { loadForums },
     mediaNewsContentStore: { loadMediaForum, setMediaPreview },
+    mediaNewsUI: { setSelectedTopic },
   } = useMediaNewsStore();
 
   useEffect(() => {
@@ -30,6 +31,9 @@ const YaplakalNewContainer: FC = () => {
       });
       ipcRenderer.yaplakalResponseTopicPreview((_, data) => {
         setMediaPreview(data);
+      });
+      ipcRenderer.yaplakalResponseTopicName((_, topicName) => {
+        setSelectedTopic(topicName);
       });
     }
     return () => {

@@ -20,7 +20,7 @@ const YaTopic: FC = () => {
   const [searchParams] = useSearchParams();
   const hrefYap = searchParams.get('href');
   const {
-    mediaNewsUI: { clearTopicPages, modeSelectMedia },
+    mediaNewsUI: { clearTopicPages, modeSelectMedia, selectedForum },
     mediaNewsContentStore: { clearContent },
   } = useMediaNewsStore();
 
@@ -31,6 +31,12 @@ const YaTopic: FC = () => {
       ipcRenderer.getYaplakalTopic(hrefYap);
     }
   }, []);
+
+  useEffect(() => {
+    if (!selectedForum) {
+      ipcRenderer.getYaplakalTopicName(hrefYap);
+    }
+  }, [selectedForum]);
 
   return (
     <div>
