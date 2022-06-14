@@ -35,7 +35,8 @@ const YaTopicToolbar: FC = () => {
   const onClickNext = () => {
     clearTopicPages();
     clearContent();
-    const [forum, page] = hrefYap.split('/');
+    const arrayHref = hrefYap.split('/');
+    const { 0: forum, [arrayHref.length - 1]: page } = arrayHref;
     const url = `${forum}/st/${current * 25}/${page}`;
     ipcRenderer.getYaplakalTopic(url);
   };
@@ -43,9 +44,11 @@ const YaTopicToolbar: FC = () => {
     clearTopicPages();
     clearContent();
     const prevPageNumb = current - 2;
-    let url = hrefYap;
-    const [forum, page] = hrefYap.split('/');
-    url = `${forum}/st/${prevPageNumb * 25}/${page}`;
+
+    const arrayHref = hrefYap.split('/');
+    const { 0: forum, [arrayHref.length - 1]: page } = arrayHref;
+
+    const url = `${forum}/st/${prevPageNumb * 25}/${page}`;
     ipcRenderer.getYaplakalTopic(url);
   };
 
