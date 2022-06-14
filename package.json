@@ -1,7 +1,7 @@
 {
-  "name": "video-download",
-  "productName": "video-download",
-  "version": "0.0.5",
+  "name": "media-download",
+  "productName": "media-download",
+  "version": "0.0.6",
   "description": "Приложение для скачивания медиа с различных хостингов",
   "main": ".webpack/main",
   "scripts": {
