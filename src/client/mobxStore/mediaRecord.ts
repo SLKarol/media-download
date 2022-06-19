@@ -20,6 +20,8 @@ const initialStateMediaSummary: MediaSummary = {
   height: undefined,
   downloadedFileName: '',
   permalink: '',
+  created: '',
+  url: '',
 };
 
 export class MediaRecordStore {
@@ -51,6 +53,7 @@ export class MediaRecordStore {
       subReddit,
       url,
       width,
+      created,
     } = value;
     this.info = {
       downloadedFileName,
@@ -66,6 +69,7 @@ export class MediaRecordStore {
       subReddit,
       url,
       width,
+      created,
     };
   };
 

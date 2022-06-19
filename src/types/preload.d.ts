@@ -121,13 +121,16 @@ declare global {
         /**
          * Получить новые записи из reddit-канала
          */
-        getRedditNews(channel: string): void;
+        getRedditNews(params: { channel: string; after: string | null }): void;
 
         /**
          * Получение новых записей из reddit-канала
          */
         redditResponseNews: (
-          callback: (_event: IpcRendererEvent, records: MediaSummaryPreview[]) => void,
+          callback: (
+            _event: IpcRendererEvent,
+            data: { records: MediaSummaryPreview[]; after: string | null; channel: string },
+          ) => void,
         ) => IpcRenderer;
 
         /**

@@ -20,7 +20,7 @@ import { downloadPicture } from './pictureHandlers';
 import { StatusJournal } from '@/client/mobxStore/journal';
 import { getHolydaysToday } from '@/lib/holidays';
 import { getPreviewImage } from '@/lib/redditUtils';
-import { decodeImageUrlTo64 } from '@/lib/images';
+import { decodeImageUrlTo64 } from '@/lib/net';
 import { getYaPlakalNews, getYaplakalTopic, getYaplakalTopicName } from './yaplakalHandlers';
 
 export function setHandlers(props: {
@@ -128,13 +128,21 @@ export function setHandlers(props: {
     if (tgGroups.length) sendVideoInTgGroup({ ...args[0], event, tgGroups, telegramBot });
   });
 
-  ipcMain.handle(AppSignals.REDDIT_RECEIVE_MY_REDDITS, (event) => {
-    getMySubreddit({ event, reddit });
+  ipcMain.handle(AppSignals.REDDIT_RECEIVE_MY_REDDITS, async (event) => {
+    try {
+      const subscribes = await getMySubreddit({ reddit });
+      event.sender.send(AppSignals.REDDIT_RESPONSE_MY_REDDITS, Array.from(subscribes));
+    } catch (err) {
+      event.sender.send(AppSignals.BACKEND_ERROR, err);
+      // todo перенести в клиент
+      event.sender.send(AppSignals.BACKEND_BUSY, false);
+    }
   });
 
   ipcMain.handle(AppSignals.REDDIT_GET_NEWS, (event, ...args) => {
-    const channel = args[0];
-    getRedditNews({ channel, event, reddit });
+    const { after, channel } = args[0] as { channel: string; after: string | null };
+    const limit = store.get('redditLimitRecords');
+    getRedditNews({ channel, limit, reddit, event, after });
   });
 
   ipcMain.handle(AppSignals.DOWNLOAD_PICTURE, (event, ...args) => {

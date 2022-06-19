@@ -1,6 +1,5 @@
 /* eslint-disable eqeqeq */
 /* eslint-disable no-param-reassign */
-import axios from 'axios';
 
 import { TYPES } from '../constants/mimeTypes';
 
@@ -11,17 +10,6 @@ export function getMimeType(fileName: string): string {
   const ext = fileName.split('.')[1].toLowerCase();
   if (!ext) return '';
   return TYPES.get(ext);
-}
-
-/**
- * Скачать картинку и декодировать её в base64
- */
-export async function decodeImageUrlTo64(url: string) {
-  const sourceImage = await axios.get(url, { responseType: 'arraybuffer' });
-  const sourceImageB64 = Buffer.from(sourceImage.data).toString('base64');
-  const fileNameSource = url.split('/').pop().split('?')[0];
-  const mimeTypes = getMimeType(fileNameSource);
-  return `data:${mimeTypes};base64,${sourceImageB64}`;
 }
 
 function gcd(a: number, b: number) {

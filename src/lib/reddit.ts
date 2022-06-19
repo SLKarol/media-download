@@ -83,10 +83,28 @@ export class Reddit {
       .catch(() => false);
   };
 
+  /**
+   * Подписки собираются с помощью метода getSubscriptions.
+   * Если в результате выполнения запроса будет объект _query:{after:ID},
+   * то необходимо снова выполнить getSubscriptions с параметром after:ID
+   */
   mySubreddits = async () => {
-    const mySubreddits = await this.client.getSubscriptions({ limit: 50 });
+    // Имя последней подписки в запросе
+    let after: string | null = null;
+    // Массив reddit-подписок
+    const subArray: { id: string; url: string; title: string; over18: boolean }[] = [];
+    do {
+      // eslint-disable-next-line no-await-in-loop
+      const subs = await this.client.getSubscriptions(after !== null ? { after } : undefined);
+      subs.forEach((s) => {
+        const { over18, title, url, id } = s;
+        subArray.push({ over18, title, url, id });
+      });
+      const { _query: query } = subs as unknown as { _query: { after: string | null } };
+      after = query.after;
+    } while (after !== null);
 
-    return mySubreddits.map((s) => {
+    return subArray.map((s) => {
       const { over18, title, url } = s;
       return { id: url.replace('/r/', '').slice(0, -1), over18, title };
     });
@@ -96,9 +114,21 @@ export class Reddit {
    * Получить новые записи по подписке.
    * Картинки не запрашивать.
    */
-  getNewRecords = async (name: string) => {
-    const newSubbRecords = await this.client.getNew(name, { limit: 50 });
-    return Promise.allSettled(newSubbRecords.map(parseSubmissionInfo)).then((records) =>
+  getNewRecords = async (params: {
+    channel: string;
+    limit: number;
+    after?: string;
+    before?: string;
+  }) => {
+    const { limit, channel, after, before } = params;
+    const newSubbRecords = await this.client.getNew(channel, {
+      limit,
+      after: after || undefined,
+      before: before || undefined,
+      count: 555,
+    });
+    const { _query } = newSubbRecords as unknown as { _query: { after: string | null } };
+    const data = await Promise.allSettled(newSubbRecords.map(parseSubmissionInfo)).then((records) =>
       records.reduce((acc, record) => {
         if (record.status === 'fulfilled') {
           const { value } = record as { value: MediaSummaryPreview };
@@ -108,5 +138,6 @@ export class Reddit {
         return acc;
       }, [] as MediaSummaryPreview[]),
     );
+    return { data, after: _query.after, channel };
   };
 }

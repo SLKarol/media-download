@@ -89,7 +89,8 @@ contextBridge.exposeInMainWorld('electron', {
         ipcRenderer.removeAllListeners(AppSignals.REDDIT_RESPONSE_NEWS);
         ipcRenderer.removeAllListeners(AppSignals.SEND_MEDIA_GROUP_PREVIEW);
       },
-      getRedditNews: (channel: string) => ipcRenderer.invoke(AppSignals.REDDIT_GET_NEWS, channel),
+      getRedditNews: (params: { channel: string; after: string | null }) =>
+        ipcRenderer.invoke(AppSignals.REDDIT_GET_NEWS, params),
       /**
        * Скачать картинку
        */

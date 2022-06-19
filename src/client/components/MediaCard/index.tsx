@@ -1,5 +1,6 @@
 import type { FC, PropsWithChildren } from 'react';
 import { H5, Card, Elevation } from '@blueprintjs/core';
+import clsx from 'clsx';
 
 import MediaPreviewComponent from '@client/components/MediaPreviewComponent';
 import type { MediaSummaryUi } from '@/types/media';
@@ -19,10 +20,12 @@ const MediaCard: FC<PropsWithChildren<Props>> = ({
   children,
   onSelectMediaAction,
   idVideoSource,
+  created,
 }) => {
   return (
     <Card elevation={Elevation.ONE} className={styles.component}>
       <H5>{title}</H5>
+      {created ? <span className={clsx('bp4-text-small', styles.dateTime)}>{created}</span> : null}
       <MediaPreviewComponent decoded={previewImages?.decoded} title={title} />
       <span>{dimensions}</span>
       <MediaCardVideoActions

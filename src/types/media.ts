@@ -34,6 +34,11 @@ export interface MediaSummary {
    * Ссылка на медиа-ресурс
    */
   url?: string;
+
+  /**
+   * JSON-date создания записи
+   */
+  created?: string;
 }
 
 /**

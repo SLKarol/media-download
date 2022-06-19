@@ -1,7 +1,16 @@
 import type { FC } from 'react';
 import { useEffect } from 'react';
 import { useFormContext, Controller } from 'react-hook-form';
-import { FormGroup, Card, H5, InputGroup, Button, Intent, Elevation } from '@blueprintjs/core';
+import {
+  FormGroup,
+  Card,
+  H5,
+  InputGroup,
+  Button,
+  Intent,
+  Elevation,
+  NumericInput,
+} from '@blueprintjs/core';
 
 import type { FormStateSettings } from '@/types/settings';
 
@@ -34,9 +43,8 @@ const RedditSettings: FC = () => {
         name="redditUserName"
         control={control}
         render={({ field: { ref, ...p } }) => {
-          const fp = { label: 'Имя пользователя в Reddit' };
           return (
-            <FormGroup {...fp}>
+            <FormGroup label="Имя пользователя в Reddit">
               <InputGroup inputRef={ref} {...p} />
             </FormGroup>
           );
@@ -47,9 +55,8 @@ const RedditSettings: FC = () => {
         control={control}
         defaultValue=""
         render={({ field: { ref, ...p } }) => {
-          const fp = { label: 'Пароль пользователя в Reddit' };
           return (
-            <FormGroup {...fp}>
+            <FormGroup label="Пароль пользователя в Reddit">
               <InputGroup inputRef={ref} type="password" {...p} />
             </FormGroup>
           );
@@ -68,12 +75,8 @@ const RedditSettings: FC = () => {
         }}
         render={({ field: { ref, ...p } }) => {
           const intent = (errors.redditPasswordConfirm ? 'danger' : 'none') as Intent;
-          const fp = {
-            label: 'Подтвердите пароль',
-            intent,
-          };
           return (
-            <FormGroup {...fp}>
+            <FormGroup label="Подтвердите пароль" intent={intent}>
               <InputGroup inputRef={ref} type="password" intent={intent} {...p} />
             </FormGroup>
           );
@@ -84,11 +87,8 @@ const RedditSettings: FC = () => {
         control={control}
         defaultValue=""
         render={({ field: { ref, ...p } }) => {
-          const fp = {
-            label: 'App Id',
-          };
           return (
-            <FormGroup {...fp}>
+            <FormGroup label="App Id">
               <InputGroup inputRef={ref} {...p} />
             </FormGroup>
           );
@@ -99,12 +99,20 @@ const RedditSettings: FC = () => {
         control={control}
         defaultValue=""
         render={({ field: { ref, ...p } }) => {
-          const fp = {
-            label: 'Reddit api secret',
-          };
           return (
-            <FormGroup {...fp}>
+            <FormGroup label="Reddit api secret">
               <InputGroup inputRef={ref} {...p} />
+            </FormGroup>
+          );
+        }}
+      />
+      <Controller
+        name="redditLimitRecords"
+        control={control}
+        render={({ field: { ref, onChange, ...p } }) => {
+          return (
+            <FormGroup label="Количество запрашиваемых новых записей">
+              <NumericInput inputRef={ref} min={1} onValueChange={onChange} {...p} />
             </FormGroup>
           );
         }}

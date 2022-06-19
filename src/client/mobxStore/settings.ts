@@ -15,6 +15,7 @@ export class SettingsStore {
     telegramToken: '',
     telegramAdmin: '',
     yaPlakal: { listForums: {} },
+    redditLimitRecords: 12,
   };
 
   // eslint-disable-next-line no-unused-vars
@@ -39,7 +40,7 @@ export class SettingsStore {
       const newVal = settings[key as keyof Settings];
       // Пройтись по всем настройкам, исключая там, где объекты
       if (this.settings[key as keyof Settings] !== newVal && typeof newVal !== 'object') {
-        (this.settings as unknown as { [k: string]: string | boolean })[key] = newVal;
+        (this.settings as unknown as { [k: string]: string | boolean | number })[key] = newVal;
       }
       // Перезаписать там, где объекты
       this.settings.yaPlakal = settings.yaPlakal;

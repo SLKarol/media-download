@@ -78,7 +78,6 @@ const RedditNewsSelectSubscribe: FC = () => {
       itemPredicate={itemPredicate}
       onItemSelect={(item) => setSelectedSubscribe(item.id)}
       popoverProps={{
-        fill: true,
         usePortal: true,
       }}
       disabled={appBusy}>

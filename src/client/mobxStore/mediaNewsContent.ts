@@ -6,9 +6,12 @@ import { MediaRecordStore } from './mediaRecord';
 import type { MediaSummaryUi, MediaSummaryPreview, MediaPreview } from '@/types/media';
 import { MediaActions } from '@/client/constants/mediaActions';
 import { HasPrevNextPage } from '@/types/mediaForum';
+import { dateTimeToString } from '@/client/lib/date';
 
 export class MediaNewsContentStore {
   newRecords: Map<string, MediaRecordStore> = new Map();
+
+  after: string | null = null;
 
   constructor(public rootRedditNewsStore: RootMediaNewsStore) {
     makeAutoObservable(this);
@@ -17,9 +20,13 @@ export class MediaNewsContentStore {
   /**
    * Загрузить список новых записей из reddit
    */
-  loadRedditNewRecords = (records: MediaSummaryPreview[]) => {
-    // Удалить старые данные
-    this.newRecords.clear();
+  loadRedditNewRecords = (data: {
+    records: MediaSummaryPreview[];
+    after: string | null;
+    channel: string;
+  }) => {
+    const { after, records } = data;
+    this.after = after;
     records.forEach(this.createNewRecordStore);
   };
 
@@ -38,8 +45,16 @@ export class MediaNewsContentStore {
   get newRecordsUiData(): Partial<MediaSummaryUi>[] {
     const re: Partial<MediaSummaryUi>[] = [];
     this.newRecords.forEach((record) => {
-      const { title, previewImages, dimensions, haveVideo, id, unSupportTelegram, idVideoSource } =
-        record.videoDescription;
+      const {
+        title,
+        previewImages,
+        dimensions,
+        haveVideo,
+        id,
+        unSupportTelegram,
+        idVideoSource,
+        created,
+      } = record.videoDescription;
       re.push({
         title,
         previewImages,
@@ -48,6 +63,7 @@ export class MediaNewsContentStore {
         id,
         unSupportTelegram,
         idVideoSource,
+        created: created ? dateTimeToString(created) : null,
       });
     });
     return re;
@@ -102,4 +118,8 @@ export class MediaNewsContentStore {
     this.rootRedditNewsStore.mediaNewsUI.setTopicPagesData(pages);
     media.forEach(this.createNewRecordStore);
   };
+
+  get haveRecords() {
+    return !!this.newRecords.size;
+  }
 }

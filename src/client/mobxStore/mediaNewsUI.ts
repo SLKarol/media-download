@@ -13,6 +13,7 @@ export interface MediaToTelegram {
   width?: number;
   decoded: string;
   unSupportTelegram?: boolean;
+  created?: string;
 }
 export class MediaNewsUIStore {
   /**
@@ -137,9 +138,10 @@ export class MediaNewsUIStore {
           title,
           previewImages: { decoded },
           unSupportTelegram,
+          created,
         },
       } = this.rootStore.mediaNewsContentStore.newRecords.get(idMedia);
-      this.mediaToTelegram.set(idMedia, { id, url, title, decoded, unSupportTelegram });
+      this.mediaToTelegram.set(idMedia, { id, url, title, decoded, unSupportTelegram, created });
     }
   };
 

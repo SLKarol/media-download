@@ -54,6 +54,7 @@ const createWindow = (): void => {
       telegramGropus: '',
       telegramAdmin: '',
       yaPlakal: { listForums: {} },
+      redditLimitRecords: 12,
     },
   });
   const menuBuilder = new MenuBuilder(mainWindow, store);

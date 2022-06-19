@@ -13,6 +13,11 @@ export interface Settings {
      */
     listForums: { [U: string]: string };
   };
+
+  /**
+   * количество записей, которое взять из reddit
+   */
+  redditLimitRecords: number;
 }
 
 /**

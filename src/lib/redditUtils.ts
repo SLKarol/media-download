@@ -2,7 +2,7 @@ import type { ImagePreview, Media } from 'snoowrap/dist/objects/Submission';
 import type { Submission } from 'snoowrap';
 
 import { MediaPreview, VideoParts, MediaSummaryPreview } from '@/types/media';
-import { decodeImageUrlTo64 } from '@/lib/images';
+import { decodeImageUrlTo64 } from '@/lib/net';
 import { downloadRedGifsInfo } from '@/lib/redgifs';
 import { downloadImgurInfo } from '@/lib/imgur';
 
@@ -109,13 +109,15 @@ export async function parseSubmissionInfo(submission: Submission): Promise<Media
     crosspost_parent_list: crosspostParentList,
     url,
     permalink,
+    created_utc: createdUtc,
   } = submission as ExtendSubmission;
   // media может быть не своё, а из репоста
   let videoMedia: Media | null = media;
   if (!videoMedia && Array.isArray(crosspostParentList) && crosspostParentList.length) {
     videoMedia = crosspostParentList[0].secure_media;
   }
-
+  const date = new Date(0);
+  date.setUTCSeconds(createdUtc);
   // Если видео размещено на redgifs.com, то так взять инфу:
   if (videoMedia && 'type' in videoMedia && videoMedia.type === 'redgifs.com') {
     const {
@@ -140,6 +142,7 @@ export async function parseSubmissionInfo(submission: Submission): Promise<Media
       downloadedFileName: '',
       previewImages,
       preview,
+      created: date.toJSON(),
     };
   }
 
@@ -167,6 +170,7 @@ export async function parseSubmissionInfo(submission: Submission): Promise<Media
       downloadedFileName: '',
       previewImages,
       preview,
+      created: date.toJSON(),
     };
   }
 
@@ -203,5 +207,6 @@ export async function parseSubmissionInfo(submission: Submission): Promise<Media
     downloadedFileName: '',
     previewImages: { height, width },
     preview,
+    created: date.toJSON(),
   };
 }

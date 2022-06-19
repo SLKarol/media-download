@@ -3,8 +3,7 @@ import { parse } from 'node-html-parser';
 
 import { AppSignals } from '@/constants/signals';
 import { getListNews, getMediaFromTopic, getPageInfo } from '@/lib/yaplakal';
-import { decodeImageUrlTo64 } from '@/lib/images';
-import { getTextContent } from '@/lib/net';
+import { getTextContent, decodeImageUrlTo64 } from '@/lib/net';
 
 export async function getYaPlakalNews({ event, url }: { url: string; event: IpcMainInvokeEvent }) {
   event.sender.send(AppSignals.BACKEND_BUSY, true);

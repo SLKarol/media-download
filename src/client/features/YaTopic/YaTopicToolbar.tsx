@@ -1,11 +1,11 @@
 import type { FC } from 'react';
-import { Button } from '@blueprintjs/core';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 
 import { useMediaNewsStore } from '@client/mobxStore/rootMediaNews';
 import { useRootStore } from '@client/mobxStore/root';
-import styles from './YaTopicToolbar.module.css';
+
+import ButtonsNextPrev from '@/client/components/ButtonsNextPrev';
 
 const { ipcRenderer } = window.electron;
 
@@ -53,21 +53,15 @@ const YaTopicToolbar: FC = () => {
   };
 
   return (
-    <div className={styles.component}>
-      <Button
-        icon="arrow-left"
-        title="На предыдущую страницу топика"
-        disabled={!prev}
-        onClick={onClickPrev}
-      />
-      <Button icon="arrow-up" title="К выбору форума" onClick={onClickUp} disabled={appBusy} />
-      <Button
-        icon="arrow-right"
-        title="На следующую страницу топика"
-        disabled={!next}
-        onClick={onClickNext}
-      />
-    </div>
+    <ButtonsNextPrev
+      disabledNext={!next}
+      disabledPrev={!prev}
+      onClickNext={onClickNext}
+      onClickPrev={onClickPrev}
+      onClickUp={onClickUp}
+      disabledSelectForum={appBusy}
+      visibleSelectForum
+    />
   );
 };
 

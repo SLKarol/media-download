@@ -13,12 +13,13 @@ const ButtonGetRedditNews: FC = () => {
     mediaNewsContentStore: { clearContent },
   } = useMediaNewsStore();
   const {
-    uiState: { appBusy },
+    uiState: { appBusy, setAppBusy },
   } = useRootStore();
 
   const onClick = () => {
     clearContent();
-    ipcRenderer.getRedditNews(selectedSubscribeId);
+    ipcRenderer.getRedditNews({ after: null, channel: selectedSubscribeId });
+    setAppBusy(true);
   };
   return (
     <Button
