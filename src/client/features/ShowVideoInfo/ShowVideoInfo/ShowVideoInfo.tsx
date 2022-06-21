@@ -18,7 +18,7 @@ interface Props {
 
 const ShowVideoInfo: FunctionComponent<Props> = ({ isOpen }) => {
   const {
-    uiState: { appBusy, oneVideoDisabled },
+    uiState: { appBusy, oneVideoDisabled, setAppBusy },
     videoInfo: {
       videoDescription: { title, haveVideo, id, idVideoSource },
       setInfo,
@@ -29,6 +29,7 @@ const ShowVideoInfo: FunctionComponent<Props> = ({ isOpen }) => {
 
   useEffect(() => {
     ipcRenderer.receiveVideoInfo((_, value) => {
+      setAppBusy(false);
       setInfo(value);
     });
     ipcRenderer.receiveMediaPreview((_, param) => {

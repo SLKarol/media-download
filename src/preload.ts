@@ -143,6 +143,8 @@ contextBridge.exposeInMainWorld('electron', {
 
       getYaplakalTopicName: (url: string) =>
         ipcRenderer.invoke(AppSignals.YAPLAKAL_GET_TOPIC_NAME, url),
+
+      appChangeTitle: (title: string) => ipcRenderer.invoke(AppSignals.APP_CHANGE_TITLE, title),
     },
     ...handlersOfCallBack,
   ),

@@ -234,6 +234,8 @@ declare global {
         yaplakalResponseTopicName: (
           callback: (_event: IpcRendererEvent, data: { href: string; name: string }) => void,
         ) => IpcRenderer;
+
+        appChangeTitle(title: string): void;
       };
     };
   }

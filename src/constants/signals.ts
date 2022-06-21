@@ -162,4 +162,8 @@ export enum AppSignals {
    */
   YAPLAKAL_GET_TOPIC_NAME = 'yaplakal:get-topic-name',
   YAPLAKAL_RESPONSE_TOPIC_NAME = 'yaplakal:response-topic-name',
+  /**
+   * Изменить заголовок программы
+   */
+  APP_CHANGE_TITLE = 'app:change-title',
 }

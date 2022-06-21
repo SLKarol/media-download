@@ -74,14 +74,12 @@ export class FileStatusStore {
       if (status === StatusFile.LOADED) {
         this.rootStore.videoInfo.writeFullName(description);
       }
-
-      return undefined;
+    } else {
+      this.journal.set(id, {
+        title,
+        events: [{ lastModified: new Date().toISOString(), status, description }],
+      });
     }
-    this.journal.set(id, {
-      title,
-      events: [{ lastModified: new Date().toISOString(), status, description }],
-    });
-    return undefined;
   };
 
   get listingJournal() {
@@ -114,5 +112,11 @@ export class FileStatusStore {
     });
 
     return re;
+  }
+
+  get nowDownloading() {
+    return Array.from(this.journal.values()).some(
+      (j) => j.events[j.events.length - 1].status === StatusFile.LOADING,
+    );
   }
 }

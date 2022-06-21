@@ -58,12 +58,6 @@ export async function downloadVideo(props: {
     description: '',
   });
 
-  new Notification({
-    title,
-    body: 'Файл скачивается',
-    silent: true,
-  }).show();
-
   try {
     // Получить имя файла
     const fileName = createFullFileName({ savePath, title, urlAudio, url: urlVideo });
@@ -78,7 +72,7 @@ export async function downloadVideo(props: {
     });
     if (result.error) {
       log.error(result.error);
-    } else log.info(title, StatusFile.LOADED, result.fullFileName);
+    }
 
     new Notification({
       title,

@@ -1,4 +1,4 @@
-import { ipcMain, shell, Notification } from 'electron';
+import { ipcMain, shell, Notification, BrowserWindow } from 'electron';
 import type Store from 'electron-store';
 import log from 'electron-log';
 import type { Telegraf } from 'telegraf';
@@ -246,5 +246,13 @@ export function setHandlers(props: {
   ipcMain.handle(AppSignals.YAPLAKAL_GET_TOPIC_NAME, (event, ...args) => {
     const [url] = args as string[];
     getYaplakalTopicName({ event, url });
+  });
+
+  ipcMain.handle(AppSignals.APP_CHANGE_TITLE, (event, ...args) => {
+    const [title = ''] = args as string[];
+    const window = BrowserWindow.getFocusedWindow();
+    if (window) {
+      window.setTitle(title);
+    }
   });
 }

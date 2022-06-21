@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { autorun } from 'mobx';
+import { observer } from 'mobx-react-lite';
 
 import AppRoutes from '@client/routes/AppRoutes';
 import { useRootStore } from '@client/mobxStore/root';
@@ -14,7 +16,7 @@ const Main = () => {
   const {
     settingsStore: { save },
     uiState: { setAppBusy },
-    fileStatus: { addStatusRecord },
+    fileStatus: { addStatusRecord, nowDownloading },
     holidaysStore: { loadHolydays },
   } = useRootStore();
   const didMainRef = useRef(false);
@@ -65,6 +67,12 @@ const Main = () => {
     };
   }, []);
 
+  useEffect(() => {
+    autorun(() => {
+      ipcRenderer.appChangeTitle(`Media Downloader${nowDownloading ? ' - Идёт загрузка' : ''}`);
+    });
+  });
+
   return (
     <div className={styles.component}>
       <AppRoutes />
@@ -72,4 +80,4 @@ const Main = () => {
   );
 };
 
-export default Main;
+export default observer(Main);

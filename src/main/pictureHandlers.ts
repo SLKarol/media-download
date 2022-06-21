@@ -37,12 +37,6 @@ export async function downloadPicture(params: {
     // Получить имя файла
     const fileName = createFullFileName({ savePath, title, url });
 
-    new Notification({
-      title,
-      body: 'Файл скачивается',
-      silent: true,
-    }).show();
-
     // Скачать картинку, получить результат
     const result = { error: '', fullFileName: '' };
     if (image) {
