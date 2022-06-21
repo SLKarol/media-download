@@ -1,5 +1,6 @@
 import { ipcMain, shell, Notification } from 'electron';
 import type Store from 'electron-store';
+import log from 'electron-log';
 import type { Telegraf } from 'telegraf';
 
 import { AppSignals } from '@/constants/signals';
@@ -17,7 +18,7 @@ import {
 } from './telegramHandlers';
 import { getMySubreddit, getRedditNews } from './redditHandlers';
 import { downloadPicture } from './pictureHandlers';
-import { StatusJournal } from '@/client/mobxStore/journal';
+import { StatusFile } from '@/client/mobxStore/fileStatus';
 import { getHolydaysToday } from '@/lib/holidays';
 import { getPreviewImage } from '@/lib/redditUtils';
 import { decodeImageUrlTo64 } from '@/lib/net';
@@ -31,8 +32,8 @@ export function setHandlers(props: {
 }): void {
   const { store, menuBuilder, reddit, telegramBot } = props;
 
+  // Получить инфо о медиа по ссылке
   ipcMain.handle(AppSignals.GET_VIDEO_INFO, async (event, ...args) => {
-    event.sender.send(AppSignals.BACKEND_BUSY, true);
     const [url] = args as string[];
     try {
       // Получить инфо о видео
@@ -62,9 +63,8 @@ export function setHandlers(props: {
         event.sender.send(AppSignals.SEND_MEDIA_PREVIEW, { id, preview: mediaPreview });
       }
     } catch (err) {
+      log.error(err);
       event.sender.send(AppSignals.BACKEND_ERROR, err);
-    } finally {
-      event.sender.send(AppSignals.BACKEND_BUSY, false);
     }
   });
 
@@ -93,7 +93,7 @@ export function setHandlers(props: {
   ipcMain.handle(AppSignals.DOWNLOAD_MEDIA, (event, ...args) => {
     const videoInfo: PropsDownLoadVideo = args[0];
     const { idSource, sendVote, idRecord } = videoInfo;
-    Promise.all([
+    Promise.allSettled([
       downloadVideo({
         propsDownload: videoInfo,
         savePath: store.get('defaultSavePath'),
@@ -134,8 +134,6 @@ export function setHandlers(props: {
       event.sender.send(AppSignals.REDDIT_RESPONSE_MY_REDDITS, Array.from(subscribes));
     } catch (err) {
       event.sender.send(AppSignals.BACKEND_ERROR, err);
-      // todo перенести в клиент
-      event.sender.send(AppSignals.BACKEND_BUSY, false);
     }
   });
 
@@ -189,16 +187,20 @@ export function setHandlers(props: {
       event.sender.send(AppSignals.JOURNAL_ADD_RECORD, {
         id: idRecord,
         title,
-        status: StatusJournal.TELEGRAM_SENDING,
+        status: StatusFile.TELEGRAM_SENDING,
         description: '',
       });
 
-      await sendPictureInTgGroup({ title, url, tgGroups, telegramBot });
+      try {
+        await sendPictureInTgGroup({ title, url, tgGroups, telegramBot });
+      } catch (e) {
+        log.error(e);
+      }
 
       event.sender.send(AppSignals.JOURNAL_ADD_RECORD, {
         id: idRecord,
         title,
-        status: StatusJournal.TELEGRAM_SEND,
+        status: StatusFile.TELEGRAM_SEND,
         description: '',
       });
     }

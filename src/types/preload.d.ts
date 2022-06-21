@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { IpcRendererEvent, IpcRenderer } from 'electron';
 
-import type { StatusJournal } from '@client/mobxStore/journal';
+import type { StatusFile } from '@client/mobxStore/fileStatus';
 import type { Subscribe } from '@client/mobxStore/redditSubscribes';
 import { MediaSummary, PropsDownLoadVideo, MediaPreview, MediaSummaryPreview } from './media';
 import { Settings } from './settings';
@@ -15,7 +15,10 @@ declare global {
          * Запросить инфу о видео
          */
         getInfo(url: string): Promise<string>;
-        onBackendBusy: (callback: (_event: IpcRendererEvent, busy: boolean) => void) => IpcRenderer;
+        /**
+         * Пришла ошибка из main
+         */
+        onBackendError: (callback: (_event: IpcRendererEvent, error: Error) => void) => IpcRenderer;
         /**
          * Получение из бэкенда инфы о видео
          */
@@ -79,7 +82,7 @@ declare global {
             props: {
               id: string;
               title?: string;
-              status: StatusJournal;
+              status: StatusFile;
               description?: string;
             },
           ) => void,

@@ -1,7 +1,8 @@
 import type { IpcMainInvokeEvent } from 'electron';
 import { Notification } from 'electron';
+import log from 'electron-log';
 
-import { StatusJournal } from '@client/mobxStore/journal';
+import { StatusFile } from '@client/mobxStore/fileStatus';
 import { AppSignals } from '@/constants/signals';
 import type { Reddit } from '@/lib/reddit';
 import type { PropsDownLoadVideo, MediaSummaryPreview } from '@/types/media';
@@ -53,30 +54,32 @@ export async function downloadVideo(props: {
   event.sender.send(AppSignals.JOURNAL_ADD_RECORD, {
     id: idRecord,
     title,
-    status: StatusJournal.LOADING,
+    status: StatusFile.LOADING,
     description: '',
   });
+
+  new Notification({
+    title,
+    body: 'Файл скачивается',
+    silent: true,
+  }).show();
+
   try {
     // Получить имя файла
     const fileName = createFullFileName({ savePath, title, urlAudio, url: urlVideo });
-
-    new Notification({
-      title,
-      body: 'Файл скачивается',
-      silent: true,
-    }).show();
-
     // Скачать видео, получить результат
     const result = await downloadMedia({ url: urlVideo, urlAudio, fileName, savePath, idRecord });
 
     event.sender.send(AppSignals.JOURNAL_ADD_RECORD, {
       id: idRecord,
       title,
-      status: result.error ? StatusJournal.ERROR : StatusJournal.LOADED,
+      status: result.error ? StatusFile.ERROR : StatusFile.LOADED,
       description: result.error || result.fullFileName,
     });
+    if (result.error) {
+      log.error(result.error);
+    } else log.info(title, StatusFile.LOADED, result.fullFileName);
 
-    // Результат отдать в статистику, пусть запишет
     new Notification({
       title,
       body: !result.error ? 'Файл скачен' : 'Ошибка при скачивании',
@@ -88,10 +91,12 @@ export async function downloadVideo(props: {
       body: 'Ошибка при скачивании',
       silent: true,
     }).show();
+    log.error(e);
     event.sender.send(AppSignals.JOURNAL_ADD_RECORD, {
       id: idRecord,
-      status: StatusJournal.ERROR,
+      status: StatusFile.ERROR,
       error: JSON.stringify(e),
     });
+    event.sender.send(AppSignals.BACKEND_ERROR, e);
   }
 }

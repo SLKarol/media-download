@@ -7,7 +7,7 @@ import JournalRecordDownload from '@/client/components/JournalRecordDownload';
 
 const ReportDownload = () => {
   const {
-    journalStore: { listingJournal },
+    fileStatus: { listingJournal },
   } = useRootStore();
 
   return (

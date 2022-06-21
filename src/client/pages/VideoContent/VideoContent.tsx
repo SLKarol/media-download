@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useNavigate } from 'react-router-dom';
 
+import { useRootStore } from '@client/mobxStore/root';
 import InputVideoUrl from '@client/features/ShowVideoInfo/InputVideoUrl/InputVideoUrl';
 import ShowVideoInfo from '@client/features/ShowVideoInfo/ShowVideoInfo/ShowVideoInfo';
 import styles from './VideoContent.module.css';
@@ -10,6 +11,9 @@ import { VIDEO_SOURCES } from '@/constants/videoSrc';
 const VideoContent = () => {
   const [showDetails, setShowDetails] = useState(false);
   const navigate = useNavigate();
+  const {
+    uiState: { setAppBusy },
+  } = useRootStore();
   /**
    * Обработка введённого URL
    */
@@ -23,6 +27,7 @@ const VideoContent = () => {
       return navigate(`/yaplakalNew/?href=${forumUrl}`);
     }
     setShowDetails(true);
+    setAppBusy(true);
     return window.electron.ipcRenderer.getInfo(url);
   };
 

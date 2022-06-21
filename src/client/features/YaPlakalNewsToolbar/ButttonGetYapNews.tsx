@@ -9,7 +9,7 @@ const { ipcRenderer } = window.electron;
 
 const ButttonGetYapNews: FC = () => {
   const {
-    uiState: { appBusy },
+    uiState: { appBusy, setAppBusy },
   } = useRootStore();
 
   const {
@@ -19,6 +19,7 @@ const ButttonGetYapNews: FC = () => {
 
   const onClick = () => {
     clear();
+    setAppBusy(true);
     ipcRenderer.getYaplakalNews(selectedForum.url);
   };
 

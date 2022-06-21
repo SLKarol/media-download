@@ -14,7 +14,7 @@ const Main = () => {
   const {
     settingsStore: { save },
     uiState: { setAppBusy },
-    journalStore: { addJournalRecord },
+    fileStatus: { addStatusRecord },
     holidaysStore: { loadHolydays },
   } = useRootStore();
   const didMainRef = useRef(false);
@@ -48,13 +48,13 @@ const Main = () => {
         }
         return undefined;
       });
-      ipcRenderer.onBackendBusy((_, value) => {
-        setAppBusy(value);
+      ipcRenderer.onBackendError(() => {
+        setAppBusy(false);
       });
 
       ipcRenderer.addJournalRecord((_, props) => {
         // Отдать в журнал
-        addJournalRecord(props);
+        addStatusRecord(props);
       });
 
       ipcRenderer.holidaysGet();

@@ -13,10 +13,7 @@ export enum AppSignals {
    * Запрос инфо о видео
    */
   GET_VIDEO_INFO = 'app:get-video-info',
-  /**
-   * Бэкенд занят, поставить "загрузка"
-   */
-  BACKEND_BUSY = 'app:backend-busy',
+
   /**
    * Ошибка от сервера
    */

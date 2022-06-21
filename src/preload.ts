@@ -14,7 +14,7 @@ const EVENTS_HANDLERS = {
   receiveVideoInfo: AppSignals.SEND_VIDEO_INFO,
   receiveMediaPreview: AppSignals.SEND_MEDIA_PREVIEW,
   receiveMediaGroupPreview: AppSignals.SEND_MEDIA_GROUP_PREVIEW,
-  onBackendBusy: AppSignals.BACKEND_BUSY,
+  onBackendError: AppSignals.BACKEND_ERROR,
   receiveSettings: AppSignals.SETTINGS_SEND,
   addJournalRecord: AppSignals.JOURNAL_ADD_RECORD,
   redditResponseMyReddits: AppSignals.REDDIT_RESPONSE_MY_REDDITS,

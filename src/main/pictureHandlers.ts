@@ -1,7 +1,8 @@
 import type { IpcMainInvokeEvent } from 'electron';
 import { Notification } from 'electron';
+import log from 'electron-log';
 
-import { StatusJournal } from '@client/mobxStore/journal';
+import { StatusFile } from '@client/mobxStore/fileStatus';
 import { AppSignals } from '@/constants/signals';
 import { createFullFileName, saveBase64ToFile } from '@/lib/files';
 import { downloadMedia } from '@/lib/videos';
@@ -29,7 +30,7 @@ export async function downloadPicture(params: {
   event.sender.send(AppSignals.JOURNAL_ADD_RECORD, {
     id: idRecord,
     title,
-    status: StatusJournal.LOADING,
+    status: StatusFile.LOADING,
     description: '',
   });
   try {
@@ -52,12 +53,13 @@ export async function downloadPicture(params: {
       const { error, fullFileName } = await downloadMedia({ url, fileName, savePath, idRecord });
       result.error = error;
       result.fullFileName = fullFileName;
+      log.error(result.error);
     }
 
     event.sender.send(AppSignals.JOURNAL_ADD_RECORD, {
       id: idRecord,
       title,
-      status: result.error ? StatusJournal.ERROR : StatusJournal.LOADED,
+      status: result.error ? StatusFile.ERROR : StatusFile.LOADED,
       description: result.error || result.fullFileName,
     });
 
@@ -75,8 +77,10 @@ export async function downloadPicture(params: {
     }).show();
     event.sender.send(AppSignals.JOURNAL_ADD_RECORD, {
       id: idRecord,
-      status: StatusJournal.ERROR,
+      status: StatusFile.ERROR,
       error: JSON.stringify(e),
     });
+    event.sender.send(AppSignals.BACKEND_ERROR, e);
+    log.error(e);
   }
 }

@@ -3,7 +3,7 @@ import { createContext, useContext } from 'react';
 import { SettingsStore } from './settings';
 import { UiStateStore } from './uiState';
 import { MediaRecordStore } from './mediaRecord';
-import { JournalStore } from './journal';
+import { FileStatusStore } from './fileStatus';
 import { HolidaysStore } from './holydays';
 
 export class RootStore {
@@ -13,7 +13,7 @@ export class RootStore {
 
   videoInfo: MediaRecordStore;
 
-  journalStore: JournalStore;
+  fileStatus: FileStatusStore;
 
   holidaysStore: HolidaysStore;
 
@@ -21,7 +21,7 @@ export class RootStore {
     this.settingsStore = new SettingsStore(this);
     this.uiState = new UiStateStore(this);
     this.videoInfo = new MediaRecordStore(this);
-    this.journalStore = new JournalStore(this);
+    this.fileStatus = new FileStatusStore(this);
     this.holidaysStore = new HolidaysStore(this);
   }
 }

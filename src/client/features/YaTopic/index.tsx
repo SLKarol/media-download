@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 
+import { useRootStore } from '@client/mobxStore/root';
 import { useMediaNewsStore } from '@client/mobxStore/rootMediaNews';
 import YaTopicToolbar from './YaTopicToolbar';
 import YaTopicListMedia from './YaTopicListMedia';
@@ -23,17 +24,22 @@ const YaTopic: FC = () => {
     mediaNewsUI: { clearTopicPages, modeSelectMedia, selectedForum },
     mediaNewsContentStore: { clearContent },
   } = useMediaNewsStore();
+  const {
+    uiState: { setAppBusy },
+  } = useRootStore();
 
   useEffect(() => {
     if (hrefYap) {
       clearTopicPages();
       clearContent();
+      setAppBusy(true);
       ipcRenderer.getYaplakalTopic(hrefYap);
     }
   }, []);
 
   useEffect(() => {
     if (!selectedForum) {
+      setAppBusy(true);
       ipcRenderer.getYaplakalTopicName(hrefYap);
     }
   }, [selectedForum]);

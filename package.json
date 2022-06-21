@@ -109,6 +109,7 @@
     "axios": "^0.27.2",
     "clsx": "^1.1.1",
     "dotenv": "^16.0.1",
+    "electron-log": "^4.4.7",
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^8.0.2",
     "mobx": "^6.6.0",

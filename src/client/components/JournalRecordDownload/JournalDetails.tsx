@@ -4,7 +4,7 @@ import { Classes } from '@blueprintjs/core';
 import clsx from 'clsx';
 
 import styles from './JournalDetails.module.css';
-import type { IJournalRecord } from '@/client/mobxStore/journal';
+import type { IJournalRecord } from '@/client/mobxStore/fileStatus';
 import { getTextStatus } from '@/client/lib/journal';
 
 interface Props {

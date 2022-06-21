@@ -1,4 +1,4 @@
-import { Menu, BrowserWindow, MenuItem, MenuItemConstructorOptions } from 'electron';
+import { Menu, BrowserWindow, MenuItem, MenuItemConstructorOptions, shell, app } from 'electron';
 import type Store from 'electron-store';
 
 import { AppSignals } from '@/constants/signals';
@@ -95,6 +95,13 @@ export default class MenuBuilder {
             accelerator: 'CmdOrCtrl+D',
             click: () => {
               this.mainWindow.webContents.send(AppSignals.MENU_SELECT, 'reportDownload');
+            },
+          },
+          {
+            label: 'Логи ошибок',
+            accelerator: 'CmdOrCtrl+L',
+            click: () => {
+              shell.openPath(app.getPath('logs'));
             },
           },
         ],

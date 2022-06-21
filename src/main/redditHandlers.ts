@@ -61,8 +61,6 @@ export async function getRedditNews({
     return await Promise.all(promises);
   } catch (err) {
     event.sender.send(AppSignals.BACKEND_ERROR, err);
-  } finally {
-    event.sender.send(AppSignals.BACKEND_BUSY, false);
   }
   return undefined;
 }

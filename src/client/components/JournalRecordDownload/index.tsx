@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { Card, H5, Intent, Button, Collapse } from '@blueprintjs/core';
 
-import { JournalUI, StatusJournal } from '@/client/mobxStore/journal';
+import { JournalUI, StatusFile } from '@/client/mobxStore/fileStatus';
 import styles from './index.module.css';
 import JournalDetails from './JournalDetails';
 import { useToggleState } from '@/client/hooks/useToggleState';
@@ -17,19 +17,19 @@ const JournalRecordDownload: FC<JournalUI> = ({ lastModified, status, events, ti
   const [open, setOpen] = useToggleState();
   let intent: Intent = Intent.NONE;
   const textStatus = getTextStatus(status);
-  if (status === StatusJournal.ERROR) {
+  if (status === StatusFile.ERROR) {
     intent = Intent.DANGER;
   }
-  if (status === StatusJournal.LOADED) {
+  if (status === StatusFile.LOADED) {
     intent = Intent.SUCCESS;
   }
-  if (status === StatusJournal.LOADING) {
+  if (status === StatusFile.LOADING) {
     intent = Intent.PRIMARY;
   }
-  if (status === StatusJournal.TELEGRAM_SENDING) {
+  if (status === StatusFile.TELEGRAM_SENDING) {
     intent = Intent.PRIMARY;
   }
-  if (status === StatusJournal.TELEGRAM_SEND) {
+  if (status === StatusFile.TELEGRAM_SEND) {
     intent = Intent.SUCCESS;
   }
   return (

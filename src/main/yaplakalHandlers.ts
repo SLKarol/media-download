@@ -1,4 +1,5 @@
 import type { IpcMainInvokeEvent } from 'electron';
+import log from 'electron-log';
 import { parse } from 'node-html-parser';
 
 import { AppSignals } from '@/constants/signals';
@@ -6,7 +7,6 @@ import { getListNews, getMediaFromTopic, getPageInfo } from '@/lib/yaplakal';
 import { getTextContent, decodeImageUrlTo64 } from '@/lib/net';
 
 export async function getYaPlakalNews({ event, url }: { url: string; event: IpcMainInvokeEvent }) {
-  event.sender.send(AppSignals.BACKEND_BUSY, true);
   try {
     const html = await getTextContent(url);
     const rootPage = parse(html);
@@ -14,13 +14,11 @@ export async function getYaPlakalNews({ event, url }: { url: string; event: IpcM
     event.sender.send(AppSignals.YAPLAKAL_RESPONSE_NEWS, listNews);
   } catch (err) {
     event.sender.send(AppSignals.BACKEND_ERROR, err);
-  } finally {
-    event.sender.send(AppSignals.BACKEND_BUSY, false);
+    log.error(err);
   }
 }
 
 export async function getYaplakalTopic({ event, url }: { url: string; event: IpcMainInvokeEvent }) {
-  event.sender.send(AppSignals.BACKEND_BUSY, true);
   try {
     const html = await getTextContent(`https://www.yaplakal.com/${url}`);
     const rootPage = parse(html);
@@ -45,8 +43,6 @@ export async function getYaplakalTopic({ event, url }: { url: string; event: Ipc
     await Promise.all(promises);
   } catch (err) {
     event.sender.send(AppSignals.BACKEND_ERROR, err);
-  } finally {
-    event.sender.send(AppSignals.BACKEND_BUSY, false);
   }
 }
 
@@ -57,7 +53,6 @@ export async function getYaplakalTopicName({
   url: string;
   event: IpcMainInvokeEvent;
 }): Promise<void> {
-  event.sender.send(AppSignals.BACKEND_BUSY, true);
   try {
     const html = await getTextContent(`https://www.yaplakal.com/${url}`);
     const rootPage = parse(html);
@@ -66,6 +61,7 @@ export async function getYaplakalTopicName({
       href: url,
     });
   } catch (err) {
+    log.error(err);
     event.sender.send(AppSignals.BACKEND_ERROR, err);
   }
 }

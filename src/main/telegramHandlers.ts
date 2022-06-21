@@ -8,7 +8,7 @@ import { app, Notification } from 'electron';
 import type { Telegraf } from 'telegraf';
 import delay from '@stanislavkarol/delay';
 
-import { StatusJournal } from '@client/mobxStore/journal';
+import { StatusFile } from '@client/mobxStore/fileStatus';
 import { DELAY_SECONDS } from '@/constants/telegram';
 import { AppSignals } from '@/constants/signals';
 import { createFullFileName } from '@/lib/files';
@@ -52,7 +52,7 @@ export async function sendVideoInTgGroup(props: {
   event.sender.send(AppSignals.JOURNAL_ADD_RECORD, {
     id,
     title,
-    status: StatusJournal.TELEGRAM_SENDING,
+    status: StatusFile.TELEGRAM_SENDING,
     description: '',
   });
   new Notification({
@@ -125,7 +125,7 @@ export async function sendVideoInTgGroup(props: {
   event.sender.send(AppSignals.JOURNAL_ADD_RECORD, {
     id,
     title,
-    status: StatusJournal.TELEGRAM_SEND,
+    status: StatusFile.TELEGRAM_SEND,
     description: '',
   });
 

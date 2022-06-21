@@ -1,20 +1,20 @@
-import { StatusJournal } from '@client/mobxStore/journal';
+import { StatusFile } from '@client/mobxStore/fileStatus';
 
-export function getTextStatus(status: StatusJournal): string {
+export function getTextStatus(status: StatusFile): string {
   let textStatus = '';
-  if (status === StatusJournal.ERROR) {
+  if (status === StatusFile.ERROR) {
     textStatus = 'Ошибка';
   }
-  if (status === StatusJournal.LOADED) {
+  if (status === StatusFile.LOADED) {
     textStatus = 'Файл загружен';
   }
-  if (status === StatusJournal.LOADING) {
+  if (status === StatusFile.LOADING) {
     textStatus = 'Файл загружается';
   }
-  if (status === StatusJournal.TELEGRAM_SENDING) {
+  if (status === StatusFile.TELEGRAM_SENDING) {
     textStatus = 'Отправляется в телеграм';
   }
-  if (status === StatusJournal.TELEGRAM_SEND) {
+  if (status === StatusFile.TELEGRAM_SEND) {
     textStatus = 'Отправлен в телеграм';
   }
   return textStatus;

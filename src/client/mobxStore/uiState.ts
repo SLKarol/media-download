@@ -1,5 +1,5 @@
 import { action, computed, makeObservable, observable } from 'mobx';
-import { StatusJournal } from './journal';
+import { StatusFile } from './fileStatus';
 
 import type { RootStore } from './root';
 
@@ -30,11 +30,10 @@ export class UiStateStore {
   };
 
   get oneVideoDisabled() {
-    const { listingJournal } = this.rootStore.journalStore;
+    const { listingJournal } = this.rootStore.fileStatus;
     const oneVideoId = this.rootStore.videoInfo.info.id;
     const journalRecord = listingJournal.find((r) => r.id === oneVideoId);
-    const disabled =
-      this.appBusy || (journalRecord && journalRecord.status === StatusJournal.LOADING);
+    const disabled = this.appBusy || (journalRecord && journalRecord.status === StatusFile.LOADING);
     return disabled;
   }
 }

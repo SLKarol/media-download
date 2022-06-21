@@ -2,16 +2,16 @@ import { makeObservable, computed, action, observable } from 'mobx';
 
 import type { RootStore } from './root';
 
-export enum StatusJournal {
+export enum StatusFile {
   // eslint-disable-next-line no-unused-vars
-  LOADING = 'loading',
+  LOADING = 'загружается',
   /**
    * Файл загружен
    */
   // eslint-disable-next-line no-unused-vars
-  LOADED = 'loaded',
+  LOADED = 'загружен',
   // eslint-disable-next-line no-unused-vars
-  ERROR = 'error',
+  ERROR = 'ошибка',
   /**
    * Отправляется в телеграм
    */
@@ -25,7 +25,7 @@ export enum StatusJournal {
 }
 
 export interface IJournalRecord {
-  status: StatusJournal;
+  status: StatusFile;
 
   description?: string;
 
@@ -36,11 +36,11 @@ export interface JournalUI {
   id: string;
   title: string;
   lastModified: string;
-  status: StatusJournal;
+  status: StatusFile;
   events: IJournalRecord[];
 }
 
-export class JournalStore {
+export class FileStatusStore {
   journal: Map<string, { title: string; events: IJournalRecord[] }> = new Map();
 
   // eslint-disable-next-line no-unused-vars
@@ -50,7 +50,7 @@ export class JournalStore {
       {
         journal: observable,
         listingJournal: computed,
-        addJournalRecord: action,
+        addStatusRecord: action,
       },
       { autoBind: true },
     );
@@ -59,10 +59,10 @@ export class JournalStore {
   /**
    * Добавить запись в журнал
    */
-  addJournalRecord = (props: {
+  addStatusRecord = (props: {
     id: string;
     title?: string;
-    status: StatusJournal;
+    status: StatusFile;
     description?: string;
   }): void => {
     const { id, status, title = '', description = '' } = props;
@@ -71,7 +71,7 @@ export class JournalStore {
     if (jl) {
       jl.events.push({ lastModified: new Date().toISOString(), status, description });
       // Если файл скачали, записать в другом сторе
-      if (status === StatusJournal.LOADED) {
+      if (status === StatusFile.LOADED) {
         this.rootStore.videoInfo.writeFullName(description);
       }
 
