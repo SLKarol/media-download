@@ -115,8 +115,9 @@ export class FileStatusStore {
   }
 
   get nowDownloading() {
-    return Array.from(this.journal.values()).some(
-      (j) => j.events[j.events.length - 1].status === StatusFile.LOADING,
-    );
+    return Array.from(this.journal.values()).some((j) => {
+      const { status } = j.events[j.events.length - 1];
+      return status === StatusFile.LOADING || status === StatusFile.TELEGRAM_SENDING;
+    });
   }
 }

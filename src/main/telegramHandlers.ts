@@ -1,10 +1,9 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
-import { rm } from 'fs/promises';
-import { existsSync } from 'fs';
 import { randomUUID } from 'crypto';
 import type { IpcMainInvokeEvent } from 'electron';
 import { app, Notification } from 'electron';
+import log from 'electron-log';
 import type { Telegraf } from 'telegraf';
 import delay from '@stanislavkarol/delay';
 
@@ -33,6 +32,7 @@ export async function sendVideoInTgGroup(props: {
   telegramBot: Telegraf;
   thumb: string;
   downloadedFileName: string;
+  tgAdmin: string;
 }): Promise<void> {
   const {
     event,
@@ -45,7 +45,7 @@ export async function sendVideoInTgGroup(props: {
     tgGroups,
     telegramBot,
     thumb,
-    downloadedFileName,
+    tgAdmin,
   } = props;
 
   // Отдать в статистику инфо, что скачивается файл
@@ -65,11 +65,8 @@ export async function sendVideoInTgGroup(props: {
     url: undefined,
   };
 
-  // Есть ли такой файл в числе скаченных?
-  if (downloadedFileName && existsSync(downloadedFileName)) {
-    inputVideo.source = downloadedFileName;
-  } else {
-    // Если файл скачивать, то во временный каталог
+  try {
+    // Файл во временный каталог
     if (urlAudio) {
       const tmpPath = app.getPath('temp');
       // Получить имя файла
@@ -80,7 +77,7 @@ export async function sendVideoInTgGroup(props: {
         url: urlVideo,
       });
       // Скачать файл во временный каталог
-      const result = await downloadMedia({
+      const { error, fullFileName } = await downloadMedia({
         url: urlVideo,
         urlAudio,
         fileName,
@@ -88,47 +85,47 @@ export async function sendVideoInTgGroup(props: {
         idRecord: id,
       });
 
-      if (result) return undefined;
-      inputVideo.source = result.fullFileName;
-    }
-    inputVideo.url = urlVideo;
-  }
+      if (error) {
+        log.error(error);
+        event.sender.send(AppSignals.BACKEND_ERROR, error);
+        return undefined;
+      }
+      inputVideo.source = fullFileName;
+    } else inputVideo.url = urlVideo;
 
-  // Отправить в первую телеграм-группу
-  const sendTgresult = await telegramBot.telegram.sendVideo(tgGroups[0].trim(), inputVideo, {
-    caption: title,
-    height,
-    width,
-    thumb: { url: thumb },
-  });
-  // Если есть другие группы, то в них отправить ссылку на файл в облаке телеграмм
-  if (tgGroups.length > 1) {
+    // Отправить в админскую телеграм-группу
+    const sendTgresult = await telegramBot.telegram.sendVideo(tgAdmin, inputVideo, {
+      caption: title,
+      height,
+      width,
+      thumb: { url: thumb },
+    });
+    // В телеграмм-группы отправить ссылку на файл в облаке телеграмм
     const {
       video: { file_id: fileId },
     } = sendTgresult;
-    // Отправить в остальные группы
     if (fileId) {
-      const promises = tgGroups.slice(1).map((group) =>
-        telegramBot.telegram.sendVideo(group.trim(), fileId, {
+      for (const group of tgGroups) {
+        await delay(DELAY_SECONDS);
+        await telegramBot.telegram.sendVideo(group.trim(), fileId, {
           caption: title,
           height,
           width,
           thumb: { url: thumb },
-        }),
-      );
-      await Promise.allSettled(promises);
+        });
+      }
     }
-  }
-  if (inputVideo.source && !downloadedFileName) {
-    await rm(inputVideo.source);
-  }
-  event.sender.send(AppSignals.JOURNAL_ADD_RECORD, {
-    id,
-    title,
-    status: StatusFile.TELEGRAM_SEND,
-    description: '',
-  });
 
+    event.sender.send(AppSignals.JOURNAL_ADD_RECORD, {
+      id,
+      title,
+      status: StatusFile.TELEGRAM_SEND,
+      description: '',
+    });
+  } catch (e) {
+    log.error(e);
+    event.sender.send(AppSignals.BACKEND_ERROR, e);
+  }
   return undefined;
 }
 
@@ -137,56 +134,48 @@ export async function sendPictureInTgGroup(params: {
   url: string;
   tgGroups: string[];
   telegramBot: Telegraf;
+  tgAdmin: string;
 }): Promise<boolean> {
-  const { title, url, telegramBot, tgGroups } = params;
+  const { title, url, telegramBot, tgGroups, tgAdmin } = params;
   // Получить из URL'a имя файла
   const ext = url.split(/[#?]/)[0].split('.').pop().trim().toLowerCase();
 
   if (ext !== 'gif') {
     // Отправляется в первую группу
-    const sendTgresult = await telegramBot.telegram.sendPhoto(
-      tgGroups[0].trim(),
-      { url },
-      { caption: title },
-    );
+    const sendTgresult = await telegramBot.telegram.sendPhoto(tgAdmin, { url }, { caption: title });
     // Если есть другие группы, то в них отправить ссылку на файл в облаке телеграмм
-    if (tgGroups.length > 1) {
-      const {
-        photo: [{ file_id: fileId }],
-      } = sendTgresult;
-      // Отправить в остальные группы
-      if (fileId) {
-        const promises = tgGroups
-          .slice(1)
-          .map((group) => telegramBot.telegram.sendPhoto(group.trim(), fileId, { caption: title }));
-        await Promise.allSettled(promises);
-      }
+    const {
+      photo: [{ file_id: fileId }],
+    } = sendTgresult;
+    // Отправить в остальные группы
+    if (fileId) {
+      const promises = tgGroups.map((group) =>
+        telegramBot.telegram.sendPhoto(group.trim(), fileId, { caption: title }),
+      );
+      await Promise.allSettled(promises);
     }
+
     return true;
   }
   // Отправляется gif
   const sendTgresult = await telegramBot.telegram.sendAnimation(
-    tgGroups[0].trim(),
+    tgAdmin,
     { url },
     { caption: title },
   );
   // Если есть другие группы, то в них отправить ссылку на файл в облаке телеграмм
-  if (tgGroups.length > 1) {
-    let fileId = '';
-    if ('animation' in sendTgresult) {
-      fileId = sendTgresult.animation.file_id;
-    } else {
-      fileId = (sendTgresult as unknown as CombineAnimationType).video.file_id;
-    }
-    // Отправить в остальные группы
-    if (fileId) {
-      const promises = tgGroups
-        .slice(1)
-        .map((group) =>
-          telegramBot.telegram.sendAnimation(group.trim(), fileId, { caption: title }),
-        );
-      await Promise.allSettled(promises);
-    }
+  let fileId = '';
+  if ('animation' in sendTgresult) {
+    fileId = sendTgresult.animation.file_id;
+  } else {
+    fileId = (sendTgresult as unknown as CombineAnimationType).video.file_id;
+  }
+  // Отправить в остальные группы
+  if (fileId) {
+    const promises = tgGroups.map((group) =>
+      telegramBot.telegram.sendAnimation(group.trim(), fileId, { caption: title }),
+    );
+    await Promise.allSettled(promises);
   }
 
   return true;

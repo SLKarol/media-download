@@ -125,7 +125,8 @@ export function setHandlers(props: {
 
   ipcMain.handle(AppSignals.TELEGRAM_SEND_VIDEO, (event, ...args) => {
     const tgGroups = store.get('telegramGropus').split(',');
-    if (tgGroups.length) sendVideoInTgGroup({ ...args[0], event, tgGroups, telegramBot });
+    const tgAdmin = store.get('telegramAdmin');
+    if (tgGroups.length) sendVideoInTgGroup({ ...args[0], event, tgGroups, telegramBot, tgAdmin });
   });
 
   ipcMain.handle(AppSignals.REDDIT_RECEIVE_MY_REDDITS, async (event) => {
@@ -173,6 +174,7 @@ export function setHandlers(props: {
 
   ipcMain.handle(AppSignals.TELEGRAM_SEND_PICTURE, async (event, ...args) => {
     const tgGroups = store.get('telegramGropus').split(',');
+    const tgAdmin = store.get('telegramAdmin');
     if (tgGroups.length) {
       const param = args[0] as {
         image: string;
@@ -192,7 +194,7 @@ export function setHandlers(props: {
       });
 
       try {
-        await sendPictureInTgGroup({ title, url, tgGroups, telegramBot });
+        await sendPictureInTgGroup({ title, url, tgGroups, telegramBot, tgAdmin });
       } catch (e) {
         log.error(e);
       }
