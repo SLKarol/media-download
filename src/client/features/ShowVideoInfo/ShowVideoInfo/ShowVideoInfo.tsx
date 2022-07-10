@@ -10,6 +10,7 @@ import Description from './Description';
 import VideoPreviewComponent from '../VideoPreview';
 import styles from './ShowVideoInfo.module.css';
 import { MediaActions } from '@/client/constants/mediaActions';
+import { TypeMedia } from '@/constants/media';
 
 const { ipcRenderer } = window.electron;
 interface Props {
@@ -20,10 +21,11 @@ const ShowVideoInfo: FunctionComponent<Props> = ({ isOpen }) => {
   const {
     uiState: { appBusy, oneVideoDisabled, setAppBusy },
     videoInfo: {
-      videoDescription: { title, haveVideo, id, idVideoSource },
+      videoDescription: { title, haveVideo, id, idVideoSource, subtitles },
       setInfo,
       onClickAction,
       setMediaPreview,
+      onClickDownloadYouTube,
     },
   } = useRootStore();
 
@@ -40,7 +42,23 @@ const ShowVideoInfo: FunctionComponent<Props> = ({ isOpen }) => {
   const onClick: MouseEventHandler<HTMLButtonElement> = (e) => {
     const { currentTarget } = e;
     const action = currentTarget.getAttribute('data-action');
-    onClickAction(action as MediaActions);
+    const youtube = currentTarget.getAttribute('data-youtube');
+    if (!youtube) onClickAction(action as MediaActions);
+    if (youtube === '1') {
+      const youtubeMedia = currentTarget.getAttribute('data-youtube-media') as TypeMedia;
+      const youtubeSubtitle = currentTarget.getAttribute('data-youtube-subtitle');
+      const youtubeSubtitleType = currentTarget.getAttribute('data-youtube-subtitle-type');
+      const youtubeSubtitleLanguageCode = currentTarget.getAttribute(
+        'data-youtube-subtitle-language-code',
+      );
+
+      onClickDownloadYouTube({
+        media: youtubeMedia,
+        subtitle: youtubeSubtitle,
+        subtitleType: youtubeSubtitleType,
+        subtitleLanguageCode: youtubeSubtitleLanguageCode,
+      });
+    }
   };
 
   return (
@@ -53,9 +71,10 @@ const ShowVideoInfo: FunctionComponent<Props> = ({ isOpen }) => {
           <VideoActions
             disabled={oneVideoDisabled}
             idMedia={id}
-            visibleVote={idVideoSource === 'www.reddit.com'}
+            idVideoSource={idVideoSource}
             className={styles.oneColumn}
             onClick={onClick}
+            subtitles={subtitles}
           />
         )}
       </Card>

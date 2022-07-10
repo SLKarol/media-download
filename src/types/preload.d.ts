@@ -3,9 +3,11 @@ import { IpcRendererEvent, IpcRenderer } from 'electron';
 
 import type { StatusFile } from '@client/mobxStore/fileStatus';
 import type { Subscribe } from '@client/mobxStore/redditSubscribes';
+import { TypeMedia } from '@/constants/media';
 import { MediaSummary, PropsDownLoadVideo, MediaPreview, MediaSummaryPreview } from './media';
 import { Settings } from './settings';
 import { YaPlakalForumProperties, HasPrevNextPage } from './yplakal';
+import { DownloadValues } from './downloader';
 
 declare global {
   interface Window {
@@ -84,6 +86,7 @@ declare global {
               title?: string;
               status: StatusFile;
               description?: string;
+              idMedia: string;
             },
           ) => void,
         ) => IpcRenderer;
@@ -235,7 +238,87 @@ declare global {
           callback: (_event: IpcRendererEvent, data: { href: string; name: string }) => void,
         ) => IpcRenderer;
 
+        /**
+         * Изменить заголовок у приложения
+         */
         appChangeTitle(title: string): void;
+
+        /**
+         * Скачать ютуб-медиа
+         */
+        downloadYoutube(param: {
+          media: TypeMedia;
+          subtitle?: string;
+          subtitleType?: string;
+          subtitleLanguageCode?: string;
+          permalink: string;
+          title: string;
+          idVideoSource: string;
+        }): void;
+
+        /**
+         * Прогресс скачивания
+         */
+        downloadProgress: (
+          callback: (
+            _event: IpcRendererEvent,
+            data: {
+              /**
+               * ID загрузки
+               */
+              id: string;
+              progress: {
+                audio?: DownloadValues;
+                video?: DownloadValues;
+                subtitle?: DownloadValues;
+                picture?: DownloadValues;
+              };
+            },
+          ) => void,
+        ) => IpcRenderer;
+
+        /**
+         * Скачивание завершено
+         */
+        downloadFinish: (
+          callback: (
+            _event: IpcRendererEvent,
+            data: {
+              /**
+               * ID загрузки
+               */
+              id: string;
+            },
+          ) => void,
+        ) => IpcRenderer;
+
+        /**
+         * Ошибка при скачивании
+         */
+        downloadError: (
+          callback: (
+            _event: IpcRendererEvent,
+            data: {
+              /**
+               * ID загрузки
+               */
+              id: string;
+              error: Error;
+            },
+          ) => void,
+        ) => IpcRenderer;
+
+        /**
+         * Отменить загрузку медиа
+         */
+        downloadCancel(id: string): void;
+
+        /**
+         * Сигнал о том, что загрузка отменена
+         */
+        downloadCancelled: (
+          callback: (_event: IpcRendererEvent, id: string) => void,
+        ) => IpcRenderer;
       };
     };
   }

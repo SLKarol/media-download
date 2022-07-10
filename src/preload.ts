@@ -24,6 +24,10 @@ const EVENTS_HANDLERS = {
   yaplakalResponseTopic: AppSignals.YAPLAKAL_RESPONSE_TOPIC,
   yaplakalResponseTopicPreview: AppSignals.YAPLAKAL_RESPONSE_TOPIC_PREVIEW,
   yaplakalResponseTopicName: AppSignals.YAPLAKAL_RESPONSE_TOPIC_NAME,
+  downloadError: AppSignals.DOWNLOAD_ERROR,
+  downloadFinish: AppSignals.DOWNLOAD_FINISH,
+  downloadProgress: AppSignals.DOWNLOAD_PROGRESS,
+  downloadCancelled: AppSignals.DOWNLOAD_CANCELLED,
 };
 
 /**
@@ -145,6 +149,17 @@ contextBridge.exposeInMainWorld('electron', {
         ipcRenderer.invoke(AppSignals.YAPLAKAL_GET_TOPIC_NAME, url),
 
       appChangeTitle: (title: string) => ipcRenderer.invoke(AppSignals.APP_CHANGE_TITLE, title),
+
+      downloadYoutube: (props: {
+        media: string;
+        subtitle?: string;
+        subtitleType?: string;
+        subtitleLanguageCode?: string;
+        permalink: string;
+        title: string;
+      }) => ipcRenderer.invoke(AppSignals.DOWNLOAD_YOUTUBE, props),
+
+      downloadCancel: (id: string) => ipcRenderer.invoke(AppSignals.DOWNLOAD_CANCEL, id),
     },
     ...handlersOfCallBack,
   ),

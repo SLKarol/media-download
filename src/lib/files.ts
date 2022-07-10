@@ -38,7 +38,7 @@ export function checkFileName(value: string): string {
 /**
  * Если файл существует, дописывает к нему _2 и т.д.
  */
-function checkIfExistFile(props: { savePath: string; fileName: string; ext: string }) {
+export function checkIfExistFile(props: { savePath: string; fileName: string; ext: string }) {
   const { ext, fileName, savePath } = props;
   let i = 0;
   let fullFileName = resolve(savePath, `${fileName}${ext}`);
@@ -51,6 +51,7 @@ function checkIfExistFile(props: { savePath: string; fileName: string; ext: stri
   return i === 0 ? `${fileName}${ext}` : `${fileName}_${i}${ext}`;
 }
 
+// delete ?
 export function createFullFileName(props: {
   title: string;
   url: string;
@@ -71,7 +72,7 @@ export function createFullFileName(props: {
     ext = '.mp4';
   }
 
-  return checkIfExistFile({ ext, fileName, savePath });
+  return resolve(savePath, checkIfExistFile({ ext, fileName, savePath }));
 }
 
 /**

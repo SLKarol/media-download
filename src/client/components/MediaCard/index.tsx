@@ -9,6 +9,7 @@ import MediaCardVideoActions from './MediaCardVideoActions';
 import type { MediaActions } from '@/client/constants/mediaActions';
 
 interface Props extends Partial<MediaSummaryUi> {
+  // eslint-disable-next-line no-unused-vars
   onSelectMediaAction?: (id: string, action: MediaActions) => void;
 }
 

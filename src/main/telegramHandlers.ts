@@ -1,5 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
+import { rm } from 'fs/promises';
 import { randomUUID } from 'crypto';
 import type { IpcMainInvokeEvent } from 'electron';
 import { app, Notification } from 'electron';
@@ -19,6 +20,7 @@ type CombineAnimationType = { animation: { file_id: string }; video: { file_id: 
 
 /**
  * Отправить файл в телеграм
+ * todo отправить через POST (form-data)
  */
 export async function sendVideoInTgGroup(props: {
   event: IpcMainInvokeEvent;
@@ -100,6 +102,10 @@ export async function sendVideoInTgGroup(props: {
       width,
       thumb: { url: thumb },
     });
+
+    if (inputVideo.source) {
+      rm(inputVideo.source);
+    }
     // В телеграмм-группы отправить ссылку на файл в облаке телеграмм
     const {
       video: { file_id: fileId },

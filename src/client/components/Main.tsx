@@ -16,7 +16,14 @@ const Main = () => {
   const {
     settingsStore: { save },
     uiState: { setAppBusy },
-    fileStatus: { addStatusRecord, nowDownloading },
+    fileStatus: {
+      addStatusRecord,
+      nowDownloading,
+      progressDownloading,
+      completeDownload,
+      downloadFailed,
+      downloadCancelled,
+    },
     holidaysStore: { loadHolydays },
   } = useRootStore();
   const didMainRef = useRef(false);
@@ -61,6 +68,22 @@ const Main = () => {
 
       ipcRenderer.holidaysGet();
       ipcRenderer.holidaysResponse((_, values) => loadHolydays(values));
+
+      ipcRenderer.downloadError((_, data) => {
+        downloadFailed(data);
+      });
+
+      ipcRenderer.downloadFinish((_, data) => {
+        completeDownload(data);
+      });
+
+      ipcRenderer.downloadProgress((_, data) => {
+        progressDownloading(data);
+      });
+
+      ipcRenderer.downloadCancelled((_, id) => {
+        downloadCancelled(id);
+      });
     }
     return () => {
       ipcRenderer.removeAllListeners();

@@ -1,5 +1,6 @@
 import { makeAutoObservable } from 'mobx';
 
+import { TypeMedia } from '@/constants/media';
 import type { RootStore } from './root';
 import { MediaActions } from '@/client/constants/mediaActions';
 import type { MediaNewsContentStore } from './mediaNewsContent';
@@ -54,6 +55,7 @@ export class MediaRecordStore {
       url,
       width,
       created,
+      subtitles,
     } = value;
     this.info = {
       downloadedFileName,
@@ -70,6 +72,7 @@ export class MediaRecordStore {
       url,
       width,
       created,
+      subtitles,
     };
   };
 
@@ -81,10 +84,16 @@ export class MediaRecordStore {
     return this.info.idVideoSource === 'www.reddit.com';
   }
 
+  /**
+   * Очистить инфо
+   */
   clearInfo = () => {
     this.info = { ...initialStateMediaSummary };
   };
 
+  /**
+   * Описание видео
+   */
   get videoDescription() {
     const { width = undefined, height = undefined, previewImages = {}, ...info } = this.info;
     const { height: previewImageHeight = undefined, width: previewImageWidth = undefined } =
@@ -281,5 +290,16 @@ export class MediaRecordStore {
     if (this.info.id === id) {
       this.info.previewImages = { ...preview };
     }
+  };
+
+  // eslint-disable-next-line class-methods-use-this
+  onClickDownloadYouTube = (params: {
+    media: TypeMedia;
+    subtitle: string;
+    subtitleType: string;
+    subtitleLanguageCode: string;
+  }) => {
+    const { permalink, title, idVideoSource } = this.info;
+    window.electron.ipcRenderer.downloadYoutube({ ...params, permalink, title, idVideoSource });
   };
 }

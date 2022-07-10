@@ -33,6 +33,6 @@ export async function downloadImgurInfo(url: string): Promise<MediaSummary> {
     videoParts: { urlVideo },
     over18: false,
     downloadedFileName: '',
-    permalink: '',
+    permalink: id,
   };
 }

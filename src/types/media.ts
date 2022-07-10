@@ -1,6 +1,15 @@
 import type { ImagePreview } from 'snoowrap/dist/objects/Submission';
 
 /**
+ * Информация о субтитрах
+ */
+export interface SubTitlesInformation {
+  baseUrl: string;
+  languageCode: string;
+  languageName: string;
+}
+
+/**
  * Информация о видео
  */
 export interface MediaSummary {
@@ -39,6 +48,8 @@ export interface MediaSummary {
    * JSON-date создания записи
    */
   created?: string;
+
+  subtitles?: SubTitlesInformation[];
 }
 
 /**

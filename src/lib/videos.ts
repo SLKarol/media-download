@@ -40,6 +40,7 @@ async function downloadFile(props: {
     });
 }
 
+// todo : remove this
 export async function downloadMedia(props: {
   url: string;
   urlAudio?: string;

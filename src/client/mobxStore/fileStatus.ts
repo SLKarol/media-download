@@ -1,5 +1,6 @@
-import { makeObservable, computed, action, observable } from 'mobx';
+import { makeAutoObservable } from 'mobx';
 
+import { DownloadProgress, DownloadValues } from '@/types/downloader';
 import type { RootStore } from './root';
 
 export enum StatusFile {
@@ -24,100 +25,193 @@ export enum StatusFile {
   TELEGRAM_SEND = 'telegram-send',
 }
 
-export interface IJournalRecord {
+/**
+ * Запись в журнале по времени.
+ * ID это dateTimeFormat
+ */
+export interface JournalTime {
+  /**
+   * В каком состоянии файл
+   */
   status: StatusFile;
 
+  /**
+   * Описание статуса (например: Под каким именем файл загружен)
+   */
   description?: string;
+}
 
+/**
+ * Журнал времени для вывода на UI
+ */
+export interface JournalTimeUI extends JournalTime {
   lastModified: string;
 }
 
+/**
+ * В каком виде отдавать запись в журнале на UI
+ */
 export interface JournalUI {
   id: string;
   title: string;
   lastModified: string;
   status: StatusFile;
-  events: IJournalRecord[];
+  events: JournalTimeUI[];
+}
+export interface DownloadLogs extends DownloadProgress {
+  id: string;
+  title: string;
+}
+
+/**
+ * Свойства журнала медиа-ресурса
+ */
+interface MediaJournalProps extends DownloadProgress {
+  /**
+   * Название медиа
+   */
+  title: string;
+
+  /**
+   * Статистика по времени. Ключ это dateTimeFormat
+   */
+  timeLogs: Map<string, JournalTime>;
+
+  /**
+   * ID медиа-ресурса
+   */
+  idMedia: string;
+}
+
+/**
+ * Запись в журнале о работе с медиа
+ */
+interface MediaJournal {
+  /**
+   * ID в журнале
+   */
+  [I: string]: MediaJournalProps;
 }
 
 export class FileStatusStore {
-  journal: Map<string, { title: string; events: IJournalRecord[] }> = new Map();
+  journal: MediaJournal = {};
 
   // eslint-disable-next-line no-unused-vars
   constructor(private rootStore: RootStore) {
-    makeObservable(
-      this,
-      {
-        journal: observable,
-        listingJournal: computed,
-        addStatusRecord: action,
-      },
-      { autoBind: true },
-    );
+    makeAutoObservable(this);
   }
 
   /**
-   * Добавить запись в журнал
+   * Добавить запись статуса загрузки в журнал
    */
-  addStatusRecord = (props: {
+  addStatusRecord = (params: {
     id: string;
     title?: string;
     status: StatusFile;
     description?: string;
+    idMedia: string;
   }): void => {
-    const { id, status, title = '', description = '' } = props;
-
-    const jl = this.journal.get(id);
-    if (jl) {
-      jl.events.push({ lastModified: new Date().toISOString(), status, description });
-      // Если файл скачали, записать в другом сторе
-      if (status === StatusFile.LOADED) {
-        this.rootStore.videoInfo.writeFullName(description);
-      }
+    const { id, idMedia, status, title = '', description = '' } = params;
+    // Если запись найдена, то записать свойства
+    if (id in this.journal) {
+      this.journal[id].timeLogs.set(new Date().toISOString(), { status, description });
     } else {
-      this.journal.set(id, {
+      // Если запись не найдена, то добавить оную
+      this.journal[id] = {
+        idMedia,
         title,
-        events: [{ lastModified: new Date().toISOString(), status, description }],
-      });
+        timeLogs: new Map([[new Date().toISOString(), { status, description }]]),
+      };
     }
   };
 
   get listingJournal() {
-    const re: JournalUI[] = [];
     const dateTimeFormat = new Intl.DateTimeFormat('ru-RU', {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
     });
-    this.journal.forEach((journal, id) => {
-      const { title, events } = journal;
-      const lastRecord = events[events.length - 1];
-      re.push({
-        id,
-        title,
-        lastModified: lastRecord.lastModified,
-        status: lastRecord.status,
-        events: events.map((e) => ({
-          lastModified: dateTimeFormat.format(new Date(e.lastModified)),
-          status: e.status,
-          description: e.description,
-        })),
+    return Object.keys(this.journal).reduce((acc, key) => {
+      const { timeLogs, title } = this.journal[key];
+      const events: JournalTimeUI[] = [];
+      timeLogs.forEach(({ status, description }, dt) => {
+        events.push({ lastModified: dateTimeFormat.format(new Date(dt)), status, description });
       });
-    });
-
-    re.sort((a, b) => {
-      if (a.lastModified < b.lastModified) return 1;
-      if (a.lastModified > b.lastModified) return -1;
-      return 0;
-    });
-
-    return re;
+      const { lastModified, status } = events[events.length - 1];
+      acc.push({ id: key, title, lastModified, status, events });
+      return acc;
+    }, [] as JournalUI[]);
   }
 
+  /**
+   * Ответ на вопрос: Сейчас идёт загрузка?
+   */
   get nowDownloading() {
-    return Array.from(this.journal.values()).some((j) => {
-      const { status } = j.events[j.events.length - 1];
-      return status === StatusFile.LOADING || status === StatusFile.TELEGRAM_SENDING;
-    });
+    return this.listingJournal.some(
+      (l) => l.status === StatusFile.LOADING || l.status === StatusFile.TELEGRAM_SENDING,
+    );
   }
+
+  /**
+   * Записывает прогресс загрузки
+   */
+  progressDownloading = (params: {
+    /**
+     * ID загрузки
+     */
+    id: string;
+    progress: {
+      audio?: DownloadValues;
+      video?: DownloadValues;
+      subtitle?: DownloadValues;
+      picture?: DownloadValues;
+    };
+  }) => {
+    if (!this.journal[params.id]) return undefined;
+    const journal = this.journal[params.id];
+    Object.assign(journal, params.progress);
+    return undefined;
+  };
+
+  /**
+   * Записать тот факт, что загрузка завершена
+   */
+  completeDownload = (params: { id: string }) => {
+    if (!this.journal[params.id]) return undefined;
+    this.journal[params.id].timeLogs.set(new Date().toISOString(), {
+      status: StatusFile.LOADED,
+    });
+    return undefined;
+  };
+
+  downloadFailed = (params: { id: string; error: Error }) => {
+    if (!this.journal[params.id]) return undefined;
+    this.journal[params.id].timeLogs.set(new Date().toISOString(), {
+      status: StatusFile.ERROR,
+      description: JSON.stringify(params.error),
+    });
+    return undefined;
+  };
+
+  /**
+   * Для вывода графика загрузки
+   */
+  get downloadLog() {
+    return Object.keys(this.journal).reduce((acc, key) => {
+      const { title, timeLogs, audio, picture, subtitle, video } = this.journal[key];
+      const timeValues = Array.from(timeLogs.values());
+      if (timeValues[timeValues.length - 1].status === StatusFile.LOADING) {
+        acc.push({ id: key, audio, picture, subtitle, video, title });
+        return acc;
+      }
+      return acc;
+    }, [] as DownloadLogs[]);
+  }
+
+  /**
+   * Отменить загрузку
+   */
+  downloadCancelled = (id: string) => {
+    delete this.journal[id];
+  };
 }

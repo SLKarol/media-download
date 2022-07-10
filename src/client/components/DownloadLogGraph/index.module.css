@@ -1,0 +1,20 @@
+.component h5 {
+  overflow-wrap: break-word;
+}
+
+.component {
+  margin-bottom: 0.1em;
+}
+
+.graphContainer {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-rows: 1fr;
+  align-items: center;
+  column-gap: 0.5rem;
+}
+
+.twoLines {
+  grid-column: 3/4;
+  grid-row: 1/3;
+}

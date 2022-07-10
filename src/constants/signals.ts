@@ -114,7 +114,7 @@ export enum AppSignals {
   REDDIT_RESPONSE_NEWS = 'reddit:response-news',
 
   /**
-   * Скачать видео
+   * Скачать изображение
    */
   DOWNLOAD_PICTURE = 'download:picture',
 
@@ -166,4 +166,34 @@ export enum AppSignals {
    * Изменить заголовок программы
    */
   APP_CHANGE_TITLE = 'app:change-title',
+
+  /**
+   * Скачать ютуб-ресурс
+   */
+  DOWNLOAD_YOUTUBE = 'download:youtube',
+
+  /**
+   * Прогресс скачивания
+   */
+  DOWNLOAD_PROGRESS = 'download:progress',
+
+  /**
+   * Закончилась загрузка
+   */
+  DOWNLOAD_FINISH = 'download:finish',
+
+  /**
+   * Ошибка при скачивании
+   */
+  DOWNLOAD_ERROR = 'download:error',
+
+  /**
+   * Отменить загрузку
+   */
+  DOWNLOAD_CANCEL = 'download:cancel',
+
+  /**
+   * Загрузка отменена
+   */
+  DOWNLOAD_CANCELLED = 'download:cancelled',
 }

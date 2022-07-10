@@ -25,12 +25,7 @@ const MediaCardVideoActions: FC<Props> = ({ id, onSelectMediaAction, idVideoSour
   };
 
   return (
-    <VideoActions
-      idMedia={id}
-      visibleVote={idVideoSource === 'www.reddit.com'}
-      disabled={appBusy}
-      onClick={onClick}
-    />
+    <VideoActions idMedia={id} disabled={appBusy} onClick={onClick} idVideoSource={idVideoSource} />
   );
 };
 

@@ -7,12 +7,6 @@ import JournalDetails from './JournalDetails';
 import { useToggleState } from '@/client/hooks/useToggleState';
 import { getTextStatus } from '@/client/lib/journal';
 
-const dateTimeFormat = new Intl.DateTimeFormat('ru-RU', {
-  hour: '2-digit',
-  minute: '2-digit',
-  second: '2-digit',
-});
-
 const JournalRecordDownload: FC<JournalUI> = ({ lastModified, status, events, title }) => {
   const [open, setOpen] = useToggleState();
   let intent: Intent = Intent.NONE;
@@ -37,7 +31,7 @@ const JournalRecordDownload: FC<JournalUI> = ({ lastModified, status, events, ti
       <H5>{title}</H5>
       <div className={styles.shortInfo}>
         <span>
-          {dateTimeFormat.format(new Date(lastModified))} {textStatus}
+          {lastModified} {textStatus}
         </span>
         <Button minimal intent={intent} onClick={setOpen}>
           Детальный журнал

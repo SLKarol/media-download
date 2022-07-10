@@ -1,5 +1,3 @@
-import { rm, writeFile, readFile } from 'fs/promises';
-
 import https from 'https';
 import axios from 'axios';
 import { parse } from 'node-html-parser';
@@ -7,7 +5,7 @@ import type { HTMLElement } from 'node-html-parser';
 
 import type { MediaSummaryPreview, YaplakalApiResponse } from '@/types/media';
 import { HasPrevNextPage, MediaForumProperties } from '@/types/mediaForum';
-import { getYouTubeInfo } from './youtube';
+import { downloadYouTubeInfo } from './youtube';
 
 const httpsAgent = new https.Agent({ keepAlive: true });
 
@@ -217,7 +215,7 @@ export async function getMediaFromTopic(rootPage: HTMLElement, urlTopic: string)
         url = `https:${url}`;
       }
       if (url.includes('www.youtube.com')) {
-        return getYouTubeInfo(url);
+        return downloadYouTubeInfo(url);
       }
       if (url.includes('yapfiles')) {
         return getInfoFromIframe(url, urlTopic);

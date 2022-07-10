@@ -6,6 +6,8 @@ import OpenInBrowser from './OpenInBrowser';
 import DownloadVideo from './DownloadVideo';
 import VoteMedia from './VoteMedia';
 import SendToTelegram from './SendToTelegram';
+import DownloadYouTube from './DownloadYouTube';
+import type { SubTitlesInformation } from '@/types/media';
 
 interface Props {
   className?: string;
@@ -15,10 +17,8 @@ interface Props {
   disabled?: boolean;
   idMedia: string;
   onClick: MouseEventHandler<HTMLButtonElement>;
-  /**
-   * Показывать кнопку "Проголосовать"?
-   */
-  visibleVote?: boolean;
+  idVideoSource: string;
+  subtitles?: SubTitlesInformation[];
 }
 
 const VideoActions: FC<Props> = ({
@@ -26,13 +26,26 @@ const VideoActions: FC<Props> = ({
   disabled,
   idMedia,
   onClick,
-  visibleVote = false,
+  idVideoSource,
+  subtitles,
 }) => (
   <ButtonGroup className={className}>
-    <DownloadVideo idMedia={idMedia} onClick={onClick} disabled={disabled} />
+    {idVideoSource === 'www.youtube.com' ? (
+      <DownloadYouTube
+        idMedia={idMedia}
+        onClick={onClick}
+        disabled={disabled}
+        subtitles={subtitles}
+      />
+    ) : null}
+    {idVideoSource !== 'www.youtube.com' ? (
+      <DownloadVideo idMedia={idMedia} onClick={onClick} disabled={disabled} />
+    ) : null}
     <SendToTelegram idMedia={idMedia} onClick={onClick} disabled={disabled} />
     <CopyToClipBoard idMedia={idMedia} onClick={onClick} />
-    {visibleVote && <VoteMedia idMedia={idMedia} onClick={onClick} disabled={disabled} />}
+    {idVideoSource === 'www.reddit.com' ? (
+      <VoteMedia idMedia={idMedia} onClick={onClick} disabled={disabled} />
+    ) : null}
     <OpenInBrowser idMedia={idMedia} onClick={onClick} />
   </ButtonGroup>
 );

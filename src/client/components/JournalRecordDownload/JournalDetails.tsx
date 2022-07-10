@@ -4,11 +4,11 @@ import { Classes } from '@blueprintjs/core';
 import clsx from 'clsx';
 
 import styles from './JournalDetails.module.css';
-import type { IJournalRecord } from '@/client/mobxStore/fileStatus';
+import type { JournalTimeUI } from '@/client/mobxStore/fileStatus';
 import { getTextStatus } from '@/client/lib/journal';
 
 interface Props {
-  events: IJournalRecord[];
+  events: JournalTimeUI[];
 }
 
 const JournalDetails: FC<Props> = ({ events }) => {

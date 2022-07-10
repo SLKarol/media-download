@@ -7,8 +7,9 @@ import { AppSignals } from '@/constants/signals';
 import type MenuBuilder from './menu';
 import type { Settings } from '@/types/settings';
 import type { Reddit } from '@/lib/reddit';
+import type { DownloaderMedia } from '@/lib/downloaderMedia';
 import { saveSettings, getSettings, changeSaveVideoDir } from './settingsHandlers';
-import { getVideoInfo, downloadVideo } from './videoHandlers';
+import { getVideoInfo } from './videoHandlers';
 import { FileSendTelegram, PropsDownLoadVideo, MediaPreview } from '@/types/media';
 import {
   sendVideoInTgGroup,
@@ -23,14 +24,17 @@ import { getHolydaysToday } from '@/lib/holidays';
 import { getPreviewImage } from '@/lib/redditUtils';
 import { decodeImageUrlTo64 } from '@/lib/net';
 import { getYaPlakalNews, getYaplakalTopic, getYaplakalTopicName } from './yaplakalHandlers';
+import { ParamsAddDownload } from '@/types/downloader';
+import { TypeMedia } from '@/constants/media';
 
 export function setHandlers(props: {
   store: Store<Settings>;
   menuBuilder: MenuBuilder;
   reddit: Reddit;
   telegramBot: Telegraf;
+  downloaderMedia: DownloaderMedia;
 }): void {
-  const { store, menuBuilder, reddit, telegramBot } = props;
+  const { store, menuBuilder, reddit, telegramBot, downloaderMedia } = props;
 
   // Получить инфо о медиа по ссылке
   ipcMain.handle(AppSignals.GET_VIDEO_INFO, async (event, ...args) => {
@@ -90,14 +94,17 @@ export function setHandlers(props: {
     changeSaveVideoDir({ event, store });
   });
 
-  ipcMain.handle(AppSignals.DOWNLOAD_MEDIA, (event, ...args) => {
+  ipcMain.handle(AppSignals.DOWNLOAD_MEDIA, ({ sender }, ...args) => {
     const videoInfo: PropsDownLoadVideo = args[0];
-    const { idSource, sendVote, idRecord } = videoInfo;
+    const { idSource, sendVote, idRecord, title, urlAudio, urlVideo } = videoInfo;
     Promise.allSettled([
-      downloadVideo({
-        propsDownload: videoInfo,
-        savePath: store.get('defaultSavePath'),
-        event,
+      downloaderMedia.addDownload({
+        eventSender: sender,
+        idVideoSource: idSource,
+        media: TypeMedia.video,
+        title,
+        url: urlVideo,
+        urlAudio,
       }),
       new Promise((re) => {
         if (idSource === 'www.reddit.com' && sendVote)
@@ -250,11 +257,22 @@ export function setHandlers(props: {
     getYaplakalTopicName({ event, url });
   });
 
-  ipcMain.handle(AppSignals.APP_CHANGE_TITLE, (event, ...args) => {
+  ipcMain.handle(AppSignals.APP_CHANGE_TITLE, (_, ...args) => {
     const [title = ''] = args as string[];
     const window = BrowserWindow.getFocusedWindow();
     if (window) {
       window.setTitle(title);
     }
+  });
+
+  ipcMain.handle(AppSignals.DOWNLOAD_YOUTUBE, ({ sender }, ...args) => {
+    const params = args[0] as ParamsAddDownload;
+    downloaderMedia.runDownloadYouTube({ ...params, eventSender: sender });
+  });
+
+  ipcMain.handle(AppSignals.DOWNLOAD_CANCEL, async (event, ...args) => {
+    const [id] = args as string[];
+    await downloaderMedia.downloadCancel(id);
+    event.sender.send(AppSignals.DOWNLOAD_CANCELLED, id);
   });
 }
