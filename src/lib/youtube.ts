@@ -5,10 +5,11 @@ import type { MediaSummary } from '@/types/media';
  * Получить инфо о ютуб-ресурсе
  */
 export async function downloadYouTubeInfo(url: string): Promise<MediaSummary> {
+  const props = await ytdl.getInfo(url);
   const {
-    videoDetails: { title, thumbnails, publishDate },
+    videoDetails: { title, thumbnails, publishDate, chapters },
     player_response: { captions },
-  } = await ytdl.getInfo(url);
+  } = props;
 
   const posterUrl = thumbnails.length ? thumbnails[thumbnails.length - 1].url : '';
   const id = ytdl.getVideoID(url);
@@ -32,5 +33,6 @@ export async function downloadYouTubeInfo(url: string): Promise<MediaSummary> {
     created: new Date(publishDate).toJSON(),
     permalink: `/watch?v=${id}`,
     subtitles: captions ? subtitles : undefined,
+    chapters,
   };
 }

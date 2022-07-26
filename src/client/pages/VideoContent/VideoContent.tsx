@@ -7,6 +7,7 @@ import InputVideoUrl from '@client/features/ShowVideoInfo/InputVideoUrl/InputVid
 import ShowVideoInfo from '@client/features/ShowVideoInfo/ShowVideoInfo/ShowVideoInfo';
 import styles from './VideoContent.module.css';
 import { VIDEO_SOURCES } from '@/constants/videoSrc';
+import { MediaRecordSelectChapters } from '@/client/features/MediaRecordSelectChapters';
 
 const VideoContent = () => {
   const [showDetails, setShowDetails] = useState(false);
@@ -35,6 +36,7 @@ const VideoContent = () => {
     <div className={styles.component}>
       <InputVideoUrl details={showDetails} onEnterUrl={onEnterUrl} />
       <ShowVideoInfo isOpen={showDetails} />
+      <MediaRecordSelectChapters />
     </div>
   );
 };

@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite';
 import { Checkbox } from '@blueprintjs/core';
 
 import { useMediaNewsStore } from '@client/mobxStore/rootMediaNews';
-import styles from './SelectThisMediaForTelegram.module.css';
+import styles from './index.module.css';
 import SelectThisMediaLabel from './SelectThisMediaLabel';
 
 interface Props {
@@ -12,6 +12,9 @@ interface Props {
   checked: boolean;
 }
 
+/**
+ * Чекбокс с подписью "Отправить в список рассылки"
+ */
 const SelectThisMediaForTelegram: FC<Props> = ({ id, unSupportTelegram, checked }) => {
   const {
     mediaNewsUI: { toggleMediaToTelegram },

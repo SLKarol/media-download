@@ -1,4 +1,5 @@
 import type { ImagePreview } from 'snoowrap/dist/objects/Submission';
+import type { Chapter } from 'ytdl-core';
 
 /**
  * Информация о субтитрах
@@ -49,7 +50,15 @@ export interface MediaSummary {
    */
   created?: string;
 
+  /**
+   * Доступные субтитры
+   */
   subtitles?: SubTitlesInformation[];
+
+  /**
+   * Как медиа-ресурс разбит на части
+   */
+  chapters?: Chapter[];
 }
 
 /**
@@ -121,6 +130,10 @@ export interface ImgurPostData {
 export interface MediaSummaryUi extends MediaSummary {
   dimensions: string;
   unSupportTelegram: boolean | undefined;
+  /**
+   * Есть ли возможность разбить на части?
+   */
+  hasChapters?: boolean;
 }
 
 export interface FileSendTelegram {

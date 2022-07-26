@@ -23,6 +23,7 @@ const initialStateMediaSummary: MediaSummary = {
   permalink: '',
   created: '',
   url: '',
+  chapters: undefined,
 };
 
 export class MediaRecordStore {
@@ -56,6 +57,7 @@ export class MediaRecordStore {
       width,
       created,
       subtitles,
+      chapters,
     } = value;
     this.info = {
       downloadedFileName,
@@ -73,6 +75,7 @@ export class MediaRecordStore {
       width,
       created,
       subtitles,
+      chapters,
     };
   };
 
@@ -95,7 +98,13 @@ export class MediaRecordStore {
    * Описание видео
    */
   get videoDescription() {
-    const { width = undefined, height = undefined, previewImages = {}, ...info } = this.info;
+    const {
+      width = undefined,
+      height = undefined,
+      previewImages = {},
+      chapters,
+      ...info
+    } = this.info;
     const { height: previewImageHeight = undefined, width: previewImageWidth = undefined } =
       previewImages;
     // Размеры изображения
@@ -127,8 +136,8 @@ export class MediaRecordStore {
         isCorrectRatio(previewImageWidth, previewImageHeight) &&
         decoded.length < IMAGE_SIZE_LIMIT;
     }
-
-    return { ...info, width, height, dimensions, previewImages, unSupportTelegram };
+    const hasChapters = Array.isArray(chapters) && chapters.length > 0;
+    return { ...info, width, height, dimensions, previewImages, unSupportTelegram, hasChapters };
   }
 
   /**
@@ -153,6 +162,7 @@ export class MediaRecordStore {
     if (userAction === MediaActions.COPY_TO_CLIP_BOARD) return this.copyToClipBoard();
     if (userAction === MediaActions.VOTE) return this.voteRecord();
     if (userAction === MediaActions.OPEN_IN_BROWSER) return this.openInBrowser();
+    if (userAction === MediaActions.SELECT_CHAPTERS) return this.selectChapters();
     return undefined;
   };
 
@@ -196,6 +206,7 @@ export class MediaRecordStore {
       width,
       previewImages: { src },
       downloadedFileName,
+      idVideoSource,
     } = this.info;
     window.electron.ipcRenderer.sendVideoToTg({
       id,
@@ -206,6 +217,7 @@ export class MediaRecordStore {
       width,
       thumb: src,
       downloadedFileName,
+      idVideoSource,
     });
   };
 
@@ -292,7 +304,6 @@ export class MediaRecordStore {
     }
   };
 
-  // eslint-disable-next-line class-methods-use-this
   onClickDownloadYouTube = (params: {
     media: TypeMedia;
     subtitle: string;
@@ -301,5 +312,9 @@ export class MediaRecordStore {
   }) => {
     const { permalink, title, idVideoSource } = this.info;
     window.electron.ipcRenderer.downloadYoutube({ ...params, permalink, title, idVideoSource });
+  };
+
+  selectChapters = () => {
+    (this.rootStore as RootStore).uiState.toggleShowDialogSelectChapters();
   };
 }

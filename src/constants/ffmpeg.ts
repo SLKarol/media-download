@@ -1,7 +1,8 @@
 /**
- * Параметры для ffmpeg мерджа video&audio потоков
+ * Общая настройка: Скрыть спам консоли, логи направить в pipe:3
+ * Вероятно потом я буду в pipe:3 смотреть за статистикой
  */
-export const FFMPEG_MERGE_VIDEO_AUDIO = [
+export const FFMPEG_HIDE_LOG_CONSOLE = [
   // Удалить спам консоли ffmpeg
   '-loglevel',
   '8',
@@ -9,6 +10,11 @@ export const FFMPEG_MERGE_VIDEO_AUDIO = [
   // Перенаправить/включить сообщения о ходе выполнения в pipe:3
   '-progress',
   'pipe:3',
+];
+/**
+ * Параметры для ffmpeg мерджа video&audio потоков
+ */
+export const FFMPEG_MERGE_VIDEO_AUDIO = [
   // Установить потоки ввода
   '-i',
   'pipe:4',
@@ -28,14 +34,6 @@ export const FFMPEG_MERGE_VIDEO_AUDIO = [
  * Параметры для перевода ffmpeg-аудиопотока
  */
 export const FFMPEG_AUDIO = [
-  // Удалить спам консоли ffmpeg
-  '-loglevel',
-  '8',
-  '-hide_banner',
-  // Перенаправить/включить сообщения о ходе выполнения в pipe:3
-  // (Возможно я захочу сделать вывод работы ffmpeg)
-  '-progress',
-  'pipe:3',
   // Установить потоки ввода
   '-i',
   'pipe:4',

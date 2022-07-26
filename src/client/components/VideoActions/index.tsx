@@ -7,6 +7,8 @@ import DownloadVideo from './DownloadVideo';
 import VoteMedia from './VoteMedia';
 import SendToTelegram from './SendToTelegram';
 import DownloadYouTube from './DownloadYouTube';
+import DownloadChapters from './DownloadChapters';
+
 import type { SubTitlesInformation } from '@/types/media';
 
 interface Props {
@@ -19,6 +21,10 @@ interface Props {
   onClick: MouseEventHandler<HTMLButtonElement>;
   idVideoSource: string;
   subtitles?: SubTitlesInformation[];
+  /**
+   * Если возможность разбить на части?
+   */
+  hasChapters?: boolean;
 }
 
 const VideoActions: FC<Props> = ({
@@ -28,15 +34,21 @@ const VideoActions: FC<Props> = ({
   onClick,
   idVideoSource,
   subtitles,
+  hasChapters,
 }) => (
   <ButtonGroup className={className}>
     {idVideoSource === 'www.youtube.com' ? (
-      <DownloadYouTube
-        idMedia={idMedia}
-        onClick={onClick}
-        disabled={disabled}
-        subtitles={subtitles}
-      />
+      <>
+        <DownloadYouTube
+          idMedia={idMedia}
+          onClick={onClick}
+          disabled={disabled}
+          subtitles={subtitles}
+        />
+        {hasChapters ? (
+          <DownloadChapters idMedia={idMedia} onClick={onClick} disabled={disabled} />
+        ) : null}
+      </>
     ) : null}
     {idVideoSource !== 'www.youtube.com' ? (
       <DownloadVideo idMedia={idMedia} onClick={onClick} disabled={disabled} />

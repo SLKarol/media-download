@@ -61,6 +61,10 @@ export interface JournalUI {
 export interface DownloadLogs extends DownloadProgress {
   id: string;
   title: string;
+  /**
+   * Если true, значит нельзя отменить эту загрузку
+   */
+  disableDelete: boolean;
 }
 
 /**
@@ -81,6 +85,11 @@ interface MediaJournalProps extends DownloadProgress {
    * ID медиа-ресурса
    */
   idMedia: string;
+
+  /**
+   * Если true, значит нельзя отменить
+   */
+  disableDelete: boolean;
 }
 
 /**
@@ -110,16 +119,21 @@ export class FileStatusStore {
     status: StatusFile;
     description?: string;
     idMedia: string;
+    disableDelete?: boolean;
   }): void => {
-    const { id, idMedia, status, title = '', description = '' } = params;
+    const { id, idMedia, status, title = '', description = '', disableDelete = false } = params;
     // Если запись найдена, то записать свойства
     if (id in this.journal) {
-      this.journal[id].timeLogs.set(new Date().toISOString(), { status, description });
+      this.journal[id].timeLogs.set(new Date().toISOString(), {
+        status,
+        description,
+      });
     } else {
       // Если запись не найдена, то добавить оную
       this.journal[id] = {
         idMedia,
         title,
+        disableDelete,
         timeLogs: new Map([[new Date().toISOString(), { status, description }]]),
       };
     }
@@ -198,10 +212,10 @@ export class FileStatusStore {
    */
   get downloadLog() {
     return Object.keys(this.journal).reduce((acc, key) => {
-      const { title, timeLogs, audio, picture, subtitle, video } = this.journal[key];
+      const { title, timeLogs, audio, picture, subtitle, video, disableDelete } = this.journal[key];
       const timeValues = Array.from(timeLogs.values());
       if (timeValues[timeValues.length - 1].status === StatusFile.LOADING) {
-        acc.push({ id: key, audio, picture, subtitle, video, title });
+        acc.push({ id: key, audio, picture, subtitle, video, title, disableDelete });
         return acc;
       }
       return acc;

@@ -35,6 +35,7 @@ export async function sendVideoInTgGroup(props: {
   thumb: string;
   downloadedFileName: string;
   tgAdmin: string;
+  idVideoSource: string;
 }): Promise<void> {
   const {
     event,
@@ -48,7 +49,13 @@ export async function sendVideoInTgGroup(props: {
     telegramBot,
     thumb,
     tgAdmin,
+    idVideoSource,
   } = props;
+
+  if (idVideoSource === 'www.youtube.com') {
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    return sendYouTubeVideoInTgGroup({ urlVideo, tgGroups, telegramBot });
+  }
 
   // Отдать в статистику инфо, что скачивается файл
   event.sender.send(AppSignals.JOURNAL_ADD_RECORD, {
@@ -267,4 +274,22 @@ export async function sendHolidayNameToTg(params: {
     });
   }
   return undefined;
+}
+
+async function sendYouTubeVideoInTgGroup({
+  telegramBot,
+  tgGroups,
+  urlVideo,
+}: {
+  urlVideo: string;
+  tgGroups: string[];
+  telegramBot: Telegraf;
+}) {
+  for (const group of tgGroups) {
+    await telegramBot.telegram.sendMessage(group.trim(), urlVideo, {
+      allow_sending_without_reply: true,
+      protect_content: false,
+    });
+    await delay(DELAY_SECONDS);
+  }
 }

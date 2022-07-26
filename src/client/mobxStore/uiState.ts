@@ -1,25 +1,22 @@
-import { action, computed, makeObservable, observable } from 'mobx';
+import { makeAutoObservable } from 'mobx';
 import { StatusFile } from './fileStatus';
 
 import type { RootStore } from './root';
 
 export class UiStateStore {
   /**
-   * Приложение занято (обычно это запрос https(s))
+   * Приложение занято (обычно это запрос http(s))
    */
   appBusy = false;
 
+  /**
+   * Показывать диалог выбора частей у медиа-ресурса?
+   */
+  showDialogSelectChapters = false;
+
   // eslint-disable-next-line no-unused-vars
   constructor(private rootStore: RootStore) {
-    makeObservable(
-      this,
-      {
-        appBusy: observable,
-        setAppBusy: action,
-        oneVideoDisabled: computed,
-      },
-      { autoBind: true },
-    );
+    makeAutoObservable(this);
   }
 
   /**
@@ -36,4 +33,12 @@ export class UiStateStore {
     const disabled = this.appBusy || (journalRecord && journalRecord.status === StatusFile.LOADING);
     return disabled;
   }
+
+  /**
+   * Переключатель состояния
+   * "показывать диалог выбора частей"
+   */
+  toggleShowDialogSelectChapters = () => {
+    this.showDialogSelectChapters = !this.showDialogSelectChapters;
+  };
 }

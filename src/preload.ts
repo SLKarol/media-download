@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent, clipboard } from 'electron';
 
 import { AppSignals } from './constants/signals';
+import { FormDataSelectChapters } from './types/downloader';
 import { PropsDownLoadVideo } from './types/media';
 import { Settings } from './types/settings';
 
@@ -82,6 +83,7 @@ contextBridge.exposeInMainWorld('electron', {
         width?: number;
         thumb: string;
         downloadedFileName: string;
+        idVideoSource: string;
       }) => ipcRenderer.invoke(AppSignals.TELEGRAM_SEND_VIDEO, props),
 
       getMySubreddit: () => ipcRenderer.invoke(AppSignals.REDDIT_RECEIVE_MY_REDDITS),
@@ -160,6 +162,9 @@ contextBridge.exposeInMainWorld('electron', {
       }) => ipcRenderer.invoke(AppSignals.DOWNLOAD_YOUTUBE, props),
 
       downloadCancel: (id: string) => ipcRenderer.invoke(AppSignals.DOWNLOAD_CANCEL, id),
+
+      downloadChapters: (params: { settings: FormDataSelectChapters; id: string }) =>
+        ipcRenderer.invoke(AppSignals.DOWNLOAD_CHAPTERS, params),
     },
     ...handlersOfCallBack,
   ),

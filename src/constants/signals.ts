@@ -196,4 +196,9 @@ export enum AppSignals {
    * Загрузка отменена
    */
   DOWNLOAD_CANCELLED = 'download:cancelled',
+
+  /**
+   * Загрузка по частям
+   */
+  DOWNLOAD_CHAPTERS = 'download:chapters',
 }

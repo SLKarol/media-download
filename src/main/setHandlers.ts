@@ -24,7 +24,7 @@ import { getHolydaysToday } from '@/lib/holidays';
 import { getPreviewImage } from '@/lib/redditUtils';
 import { decodeImageUrlTo64 } from '@/lib/net';
 import { getYaPlakalNews, getYaplakalTopic, getYaplakalTopicName } from './yaplakalHandlers';
-import { ParamsAddDownload } from '@/types/downloader';
+import { FormDataSelectChapters, ParamsAddDownload } from '@/types/downloader';
 import { TypeMedia } from '@/constants/media';
 
 export function setHandlers(props: {
@@ -274,5 +274,15 @@ export function setHandlers(props: {
     const [id] = args as string[];
     await downloaderMedia.downloadCancel(id);
     event.sender.send(AppSignals.DOWNLOAD_CANCELLED, id);
+  });
+
+  ipcMain.handle(AppSignals.DOWNLOAD_CHAPTERS, ({ sender }, ...args) => {
+    const params = args[0] as {
+      settings: FormDataSelectChapters;
+      id: string;
+      title: string;
+      permalink: string;
+    };
+    downloaderMedia.downloadChapters({ ...params, eventSender: sender });
   });
 }

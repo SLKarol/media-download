@@ -28,4 +28,9 @@ export enum MediaActions {
    * Удалить
    */
   DELETE = 'delete',
+
+  /**
+   * Выбрать части для скачивания
+   */
+  SELECT_CHAPTERS = 'selectChapters',
 }

@@ -1,9 +1,11 @@
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable camelcase */
 import { spawn } from 'child_process';
 import type { ChildProcess } from 'child_process';
 import { randomUUID } from 'crypto';
-import { resolve } from 'path';
-import { unlink } from 'fs/promises';
-import { createWriteStream } from 'fs';
+import { resolve, parse } from 'path';
+import { unlink, mkdir } from 'fs/promises';
+import { createWriteStream, existsSync } from 'fs';
 import https from 'https';
 import type Store from 'electron-store';
 import type { WebContents } from 'electron';
@@ -12,14 +14,59 @@ import ytdl from 'ytdl-core';
 
 import { AppSignals } from '@/constants/signals';
 import type { Settings } from '@/types/settings';
-import type { DownloadState, ParamsSenderAddDownload } from '@/types/downloader';
+import type {
+  DownloadState,
+  FormDataSelectChapters,
+  ParamsSenderAddDownload,
+  SelectChapter,
+} from '@/types/downloader';
 import { checkFileName, checkIfExistFile, createFullFileName } from './files';
 import { PROGRESS_INTERVAL_MS, TypeMedia } from '@/constants/media';
 import { StatusFile } from '@/client/mobxStore/fileStatus';
-import { FFMPEG_AUDIO, FFMPEG_MERGE_VIDEO_AUDIO } from '@/constants/ffmpeg';
+import {
+  FFMPEG_AUDIO,
+  FFMPEG_MERGE_VIDEO_AUDIO,
+  FFMPEG_HIDE_LOG_CONSOLE,
+} from '@/constants/ffmpeg';
+import { ffmpegSplitMedia } from './videos';
+
+interface FullDownloadInfoParts extends SelectChapter {
+  to: number | undefined;
+  numberPart: string;
+}
+
+/**
+ * Для удобства использования for...of
+ * Вычислить параметр "заканчивается на ..." у части
+ */
+function prepareChaptersToDownload({
+  selectAll,
+  selectedChapters,
+}: {
+  selectAll: boolean;
+  selectedChapters: SelectChapter[];
+}): Array<FullDownloadInfoParts> {
+  const { length } = selectedChapters;
+  const countDigits = String(Math.abs(length)).length;
+
+  return selectedChapters.map((ch, currentIndex) => {
+    const numberPart = `${currentIndex + 1}`.padStart(countDigits, '0');
+    return {
+      ...ch,
+      to:
+        currentIndex === length - 1
+          ? undefined
+          : selectedChapters[currentIndex + 1].start_time - 1 - ch.start_time,
+      select: selectAll ? true : ch.select,
+      numberPart,
+    };
+  });
+}
 
 export class DownloaderMedia {
   private currentDownload: Map<string, DownloadState> = new Map();
+
+  private abortedDownloads: Set<string> = new Set();
 
   // eslint-disable-next-line no-unused-vars
   constructor(private store: Store<Settings>) {}
@@ -45,6 +92,7 @@ export class DownloaderMedia {
       title,
       eventSender,
       idVideoSource,
+      runAfterWork,
     } = params;
     const idDownload = randomUUID();
     const savePath = this.store.get('defaultSavePath');
@@ -80,7 +128,13 @@ export class DownloaderMedia {
         audio: { downloaded: 0, total: Infinity },
         video: { downloaded: 0, total: Infinity },
       });
-      return this.youTubeVideoDownload({ fullFileName, youTubeUrl, idDownload, eventSender });
+      return this.youTubeVideoDownload({
+        fullFileName,
+        youTubeUrl,
+        idDownload,
+        eventSender,
+        runAfterWork,
+      });
     }
     // Скачать звук
     if (media === TypeMedia.audio) {
@@ -88,7 +142,13 @@ export class DownloaderMedia {
         media,
         audio: { downloaded: 0, total: Infinity },
       });
-      return this.youTubeAudioDownload({ fullFileName, youTubeUrl, idDownload, eventSender });
+      return this.youTubeAudioDownload({
+        fullFileName,
+        youTubeUrl,
+        idDownload,
+        eventSender,
+        runAfterWork,
+      });
     }
     // Скачать субтитры
     if (media === TypeMedia.subtitle) {
@@ -119,8 +179,10 @@ export class DownloaderMedia {
     youTubeUrl: string;
     idDownload: string;
     eventSender: WebContents;
+    // eslint-disable-next-line no-unused-vars
+    runAfterWork?: (fullFileName: string) => void;
   }) => {
-    const { fullFileName, youTubeUrl, idDownload, eventSender } = params;
+    const { fullFileName, youTubeUrl, idDownload, eventSender, runAfterWork } = params;
     // Создать потоки загрузки
     const audio = ytdl(youTubeUrl, { quality: 'highestaudio' }).on(
       'progress',
@@ -141,6 +203,7 @@ export class DownloaderMedia {
       fullFileName,
       idDownload,
       webContents: eventSender,
+      runAfterWork,
     });
 
     const tracker = this.currentDownload.get(idDownload);
@@ -169,8 +232,10 @@ export class DownloaderMedia {
     youTubeUrl: string;
     idDownload: string;
     eventSender: WebContents;
+    // eslint-disable-next-line no-unused-vars
+    runAfterWork?: (fullFileName: string) => void;
   }) => {
-    const { fullFileName, youTubeUrl, idDownload, eventSender } = params;
+    const { fullFileName, youTubeUrl, idDownload, eventSender, runAfterWork } = params;
     // Создать поток загрузки
     const audio = ytdl(youTubeUrl, { quality: 'highestaudio' }).on(
       'progress',
@@ -185,6 +250,7 @@ export class DownloaderMedia {
       idDownload,
       webContents: eventSender,
       onlyAudio: true,
+      runAfterWork,
     });
 
     const tracker = this.currentDownload.get(idDownload);
@@ -232,9 +298,13 @@ export class DownloaderMedia {
      * Если true, значит работать только с одним потоком- аудио
      */
     onlyAudio?: boolean;
+    // eslint-disable-next-line no-unused-vars
+    runAfterWork?: (fullFileName: string) => void;
   }) {
-    const { fullFileName, idDownload, webContents, onlyAudio } = params;
-    const ffmpegParams = !onlyAudio ? [...FFMPEG_MERGE_VIDEO_AUDIO] : [...FFMPEG_AUDIO];
+    const { fullFileName, idDownload, webContents, onlyAudio, runAfterWork } = params;
+    const ffmpegParams = !onlyAudio
+      ? [...FFMPEG_HIDE_LOG_CONSOLE, ...FFMPEG_MERGE_VIDEO_AUDIO]
+      : [...FFMPEG_HIDE_LOG_CONSOLE, ...FFMPEG_AUDIO];
     ffmpegParams.push(fullFileName);
     const ffmpegProcess = spawn('ffmpeg', ffmpegParams, {
       windowsHide: true,
@@ -261,6 +331,9 @@ export class DownloaderMedia {
     });
     ffmpegProcess.on('close', () => {
       this.onEndProcess({ idDownload, webContents });
+      if (runAfterWork && !this.abortedDownloads.has(idDownload)) {
+        runAfterWork(fullFileName);
+      }
     });
     ffmpegProcess.on('error', (error) => {
       this.onErrorProcess({ error, idDownload, webContents });
@@ -335,6 +408,7 @@ export class DownloaderMedia {
       requestAudio.abort();
     }
     this.currentDownload.delete(id);
+    this.abortedDownloads.add(id);
 
     return undefined;
   };
@@ -515,5 +589,124 @@ export class DownloaderMedia {
     } else {
       tracker.requestAudio = mediaRequest;
     }
+  };
+
+  /**
+   * Скачать медиа и разделить оное по частям
+   */
+  downloadChapters = async ({
+    eventSender,
+    id,
+    title,
+    settings: { onlyAudio, selectAll, selectedChapters, deleteSourceAfterWork },
+  }: {
+    settings: FormDataSelectChapters;
+    id: string;
+    eventSender: WebContents;
+    title: string;
+  }) => {
+    // Подготовить массив данных для скачивания
+    const downloadChapters = prepareChaptersToDownload({ selectAll, selectedChapters });
+
+    // Подготовка действий после скачивания файла
+    const runAfterWork = async (fullFileName: string) => {
+      await this.splitFileToChapters({
+        fullFileName,
+        downloadChapters,
+        onlyAudio,
+        eventSender,
+        title,
+      });
+      if (deleteSourceAfterWork) {
+        unlink(fullFileName).catch(() => undefined);
+      }
+    };
+
+    this.runDownloadYouTube({
+      eventSender,
+      idVideoSource: 'www.youtube.com',
+      media: onlyAudio ? TypeMedia.audio : TypeMedia.video,
+      title,
+      permalink: `/watch?v=${id}`,
+      url: '',
+      runAfterWork,
+    });
+  };
+
+  /**
+   * Разделяет файл по частям
+   */
+  splitFileToChapters = async ({
+    downloadChapters,
+    fullFileName,
+    onlyAudio,
+    title,
+    eventSender,
+  }: {
+    fullFileName: string;
+    onlyAudio: boolean;
+    downloadChapters: FullDownloadInfoParts[];
+    title: string;
+    eventSender: WebContents;
+  }) => {
+    const idDownload = randomUUID();
+    eventSender.send(AppSignals.JOURNAL_ADD_RECORD, {
+      id: idDownload,
+      idMedia: fullFileName,
+      title,
+      status: StatusFile.LOADING,
+      description: fullFileName,
+      disableDelete: true,
+    });
+
+    // Создать каталог сохранения
+    const { dir, base, ext, name } = parse(fullFileName);
+    const pathDir = resolve(dir, `${base}`.replace(ext, ''));
+    if (!existsSync(pathDir)) await mkdir(pathDir);
+    let downloaded = 0;
+
+    const progress = onlyAudio
+      ? { audio: { downloaded, total: downloadChapters.length } }
+      : { video: { downloaded, total: downloadChapters.length } };
+    eventSender.send(AppSignals.DOWNLOAD_PROGRESS, {
+      id: idDownload,
+      progress,
+    });
+
+    // Пройтись по заголовкам, разбить медиа-файл
+    for (const chapter of downloadChapters) {
+      const { start_time, to, select, title: titleChapter, numberPart } = chapter;
+      // Составить имя файла
+      if (select) {
+        const targetFullFileName = resolve(
+          dir,
+          name,
+          `${numberPart}_${titleChapter}.${onlyAudio ? '.mp3' : '.mp4'}`,
+        );
+        try {
+          // eslint-disable-next-line no-await-in-loop
+          await ffmpegSplitMedia({
+            isAudio: onlyAudio,
+            sourceFullFileName: fullFileName,
+            start_time,
+            to,
+            targetFullFileName,
+          });
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.error(e);
+        }
+      }
+      downloaded += 1;
+      progress[onlyAudio ? 'audio' : 'video'] = { downloaded, total: downloadChapters.length };
+      eventSender.send(AppSignals.DOWNLOAD_PROGRESS, {
+        id: idDownload,
+        progress,
+      });
+    }
+    this.currentDownload.delete(idDownload);
+    eventSender.send(AppSignals.DOWNLOAD_FINISH, {
+      id: idDownload,
+    });
   };
 }

@@ -10,7 +10,19 @@ interface Props extends DownloadLogs {
   onCancel: MouseEventHandler;
 }
 
-const DownloadLogGraph: FC<Props> = ({ title, audio, picture, subtitle, video, id, onCancel }) => {
+/**
+ * График загрузки
+ */
+const DownloadLogGraph: FC<Props> = ({
+  title,
+  audio,
+  picture,
+  subtitle,
+  video,
+  id,
+  onCancel,
+  disableDelete,
+}) => {
   return (
     <Card className={styles.component}>
       <H5>{title}</H5>
@@ -38,6 +50,7 @@ const DownloadLogGraph: FC<Props> = ({ title, audio, picture, subtitle, video, i
           title="Отменить"
           data-id={id}
           onClick={onCancel}
+          disabled={disableDelete}
         />
       </div>
     </Card>

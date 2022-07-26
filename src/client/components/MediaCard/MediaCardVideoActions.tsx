@@ -11,9 +11,18 @@ interface Props {
   id: string;
   onSelectMediaAction: (id: string, action: MediaActions) => void;
   idVideoSource: string;
+  /**
+   * Если возможность разбить на части?
+   */
+  hasChapters?: boolean;
 }
 
-const MediaCardVideoActions: FC<Props> = ({ id, onSelectMediaAction, idVideoSource }) => {
+const MediaCardVideoActions: FC<Props> = ({
+  id,
+  onSelectMediaAction,
+  idVideoSource,
+  hasChapters,
+}) => {
   const {
     uiState: { appBusy },
   } = useRootStore();
@@ -25,7 +34,13 @@ const MediaCardVideoActions: FC<Props> = ({ id, onSelectMediaAction, idVideoSour
   };
 
   return (
-    <VideoActions idMedia={id} disabled={appBusy} onClick={onClick} idVideoSource={idVideoSource} />
+    <VideoActions
+      idMedia={id}
+      disabled={appBusy}
+      onClick={onClick}
+      idVideoSource={idVideoSource}
+      hasChapters={hasChapters}
+    />
   );
 };
 

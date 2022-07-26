@@ -7,7 +7,7 @@ import { TypeMedia } from '@/constants/media';
 import { MediaSummary, PropsDownLoadVideo, MediaPreview, MediaSummaryPreview } from './media';
 import { Settings } from './settings';
 import { YaPlakalForumProperties, HasPrevNextPage } from './yplakal';
-import { DownloadValues } from './downloader';
+import { DownloadValues, FormDataSelectChapters } from './downloader';
 
 declare global {
   interface Window {
@@ -87,6 +87,7 @@ declare global {
               status: StatusFile;
               description?: string;
               idMedia: string;
+              disableDelete?: boolean;
             },
           ) => void,
         ) => IpcRenderer;
@@ -108,6 +109,7 @@ declare global {
           width?: number;
           thumb: string;
           downloadedFileName: string;
+          idVideoSource: string;
         }): void;
 
         /**
@@ -319,6 +321,16 @@ declare global {
         downloadCancelled: (
           callback: (_event: IpcRendererEvent, id: string) => void,
         ) => IpcRenderer;
+
+        /**
+         * Скачать частями
+         */
+        downloadChapters(params: {
+          settings: FormDataSelectChapters;
+          id: string;
+          title: string;
+          permalink: string;
+        }): void;
       };
     };
   }

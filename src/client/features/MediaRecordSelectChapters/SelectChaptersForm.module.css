@@ -1,0 +1,16 @@
+.form {
+  height: 300px;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+.listChapters {
+  overflow: auto;
+  padding: 0.5em;
+}
+
+.containerCheckboxes {
+  display: flex;
+  justify-content: space-between;
+
+}

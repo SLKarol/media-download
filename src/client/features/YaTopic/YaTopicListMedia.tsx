@@ -4,7 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { useMediaNewsStore } from '@client/mobxStore/rootMediaNews';
 import MediaCard from '@/client/components/MediaCard';
 import styles from './YaTopicListMedia.module.css';
-import SelectThisMediaForTelegram from '../RedditNewsContent/SelectThisMediaForTelegram';
+import SelectThisMediaForTelegram from '@/client/features/SelectThisMediaForTelegram';
 
 const YaTopicListMedia: FC = () => {
   const {

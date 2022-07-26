@@ -2,6 +2,7 @@ import type { ClientRequest as HttpClientRequest } from 'http';
 import type { Readable } from 'stream';
 import type { ChildProcess } from 'child_process';
 import type { WebContents, ClientRequest } from 'electron';
+import type { Chapter } from 'ytdl-core';
 
 import type { TypeMedia } from '@/constants/media';
 
@@ -56,6 +57,8 @@ export interface ParamsAddDownload {
 
 export interface ParamsSenderAddDownload extends ParamsAddDownload {
   eventSender: WebContents;
+  // eslint-disable-next-line no-unused-vars
+  runAfterWork?: (fullFileName: string) => void;
 }
 
 export interface DownloadValues {
@@ -114,4 +117,31 @@ export interface DownloadState extends DownloadProgress {
    * Указатель на дочерний процесс ffmpeg: для того, чтобы можно было удобно его завершить при отмене скачивания
    */
   ffmpegProcess?: ChildProcess;
+}
+
+export interface SelectChapter extends Chapter {
+  select: boolean;
+}
+
+/**
+ *Данные формы о выбранных частях медиа-ресурса
+ */
+export interface FormDataSelectChapters {
+  /**
+   * Выбранные части
+   */
+  selectedChapters: SelectChapter[];
+  /**
+   * Выбрать всё (то есть скачать разбив по частям)
+   */
+  selectAll: boolean;
+  /**
+   * Скачать только аудио?
+   */
+  onlyAudio: boolean;
+
+  /**
+   * Удалить исходный файл после окончания работы?
+   */
+  deleteSourceAfterWork: boolean;
 }

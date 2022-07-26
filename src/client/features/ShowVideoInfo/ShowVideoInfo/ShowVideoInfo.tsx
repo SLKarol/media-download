@@ -21,7 +21,7 @@ const ShowVideoInfo: FunctionComponent<Props> = ({ isOpen }) => {
   const {
     uiState: { appBusy, oneVideoDisabled, setAppBusy },
     videoInfo: {
-      videoDescription: { title, haveVideo, id, idVideoSource, subtitles },
+      videoDescription: { title, haveVideo, id, idVideoSource, subtitles, hasChapters },
       setInfo,
       onClickAction,
       setMediaPreview,
@@ -75,6 +75,7 @@ const ShowVideoInfo: FunctionComponent<Props> = ({ isOpen }) => {
             className={styles.oneColumn}
             onClick={onClick}
             subtitles={subtitles}
+            hasChapters={hasChapters}
           />
         )}
       </Card>
