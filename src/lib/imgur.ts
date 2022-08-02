@@ -1,14 +1,15 @@
-import axios from 'axios';
+import { parse as parsePath } from 'path';
 import { parse } from 'node-html-parser';
 
 import type { MediaSummary } from '@/types/media';
+import { getTextContent } from './net';
 
 export async function downloadImgurInfo(url: string): Promise<MediaSummary> {
   // Получить ID видео
-  const id = url.split('/').reverse()[0].replace('.gifv', '');
+  const { name: id } = parsePath(url);
 
-  const htmlPage = await axios.get(`https://imgur.com/${id}`, { responseType: 'text' });
-  const root = parse(htmlPage.data);
+  const htmlPage = await getTextContent(`https://imgur.com/${id}`);
+  const root = parse(htmlPage);
   // Найти тэг с постером
   const posterTag = root.querySelector('meta[name="twitter:image"]');
   const posterUrl = posterTag ? posterTag.getAttribute('content') : '';

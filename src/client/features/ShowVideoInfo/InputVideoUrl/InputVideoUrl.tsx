@@ -46,7 +46,7 @@ const InputVideoUrl: FC<Props> = ({ details, onEnterUrl }) => {
           rules={{ required: true, validate: validateUrl }}
           render={({ field: { ref, ...props } }) => (
             <FormGroup
-              label="Адрес видео"
+              label="Адрес медиа"
               labelInfo="(*)"
               helperText={`Поддерживаемые хостинги: ${supportedHosting}`}
               intent={formSettings.formState.errors.url ? 'danger' : 'primary'}

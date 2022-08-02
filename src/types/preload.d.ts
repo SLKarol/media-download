@@ -4,7 +4,13 @@ import { IpcRendererEvent, IpcRenderer } from 'electron';
 import type { StatusFile } from '@client/mobxStore/fileStatus';
 import type { Subscribe } from '@client/mobxStore/redditSubscribes';
 import { TypeMedia } from '@/constants/media';
-import { MediaSummary, PropsDownLoadVideo, MediaPreview, MediaSummaryPreview } from './media';
+import {
+  MediaSummary,
+  PropsDownLoadVideo,
+  MediaPreview,
+  MediaSummaryPreview,
+  MediaAlbum,
+} from './media';
 import { Settings } from './settings';
 import { YaPlakalForumProperties, HasPrevNextPage } from './yplakal';
 import { DownloadValues, FormDataSelectChapters } from './downloader';
@@ -29,12 +35,33 @@ declare global {
         ) => IpcRenderer;
 
         /**
-         * Получение из бэкенда превьюхи видео
+         * Получение из nodejs превьюхи видео
          */
         receiveMediaPreview: (
           callback: (
             _event: IpcRendererEvent,
             params: { id: string; preview: MediaPreview },
+          ) => void,
+        ) => IpcRenderer;
+
+        /**
+         * Получение из nodejs медиа-альбома
+         */
+        getMediaCollection: (
+          callback: (
+            _event: IpcRendererEvent,
+            data: { collection: MediaAlbum; id: string },
+          ) => void,
+        ) => IpcRenderer;
+
+        /**
+         * Получение из nodejs медиа-альбома
+         * для записи из альбома
+         */
+        getMediaGroupCollection: (
+          callback: (
+            _event: IpcRendererEvent,
+            data: { collection: MediaAlbum; id: string },
           ) => void,
         ) => IpcRenderer;
 
@@ -70,6 +97,18 @@ declare global {
          * Скачать видео
          */
         downloadVideo(props: PropsDownLoadVideo): void;
+
+        /**
+         * Скачать альбом
+         */
+        downloadCollection(params: {
+          collection: MediaAlbum;
+          idRecord: string;
+          sendVote: boolean;
+          title: string;
+          url: string;
+          idSource: string;
+        }): void;
         /**
          * Проголосовать за запись
          */
@@ -157,6 +196,16 @@ declare global {
          * Отправить картинку в телеграм
          */
         sendPictureToTg(param: { id: string; title: string; url: string; image: string });
+
+        /**
+         * Отправить альбом в телеграм
+         */
+        sendCollectionToTelegram(param: {
+          collection: MediaAlbum;
+          idRecord: string;
+          title: string;
+          idSource: string;
+        });
 
         /**
          * Отправить в телеграм медиа

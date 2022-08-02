@@ -25,6 +25,11 @@ interface Props {
    * Если возможность разбить на части?
    */
   hasChapters?: boolean;
+
+  /**
+   * Это коллекция изображений?
+   */
+  isCollection?: boolean;
 }
 
 const VideoActions: FC<Props> = ({

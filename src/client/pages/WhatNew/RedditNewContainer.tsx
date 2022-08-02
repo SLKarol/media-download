@@ -18,7 +18,7 @@ const { ipcRenderer } = window.electron;
 const RedditNewContainer: FC = () => {
   const {
     redditSubscribeStore: { loadSubscribes },
-    mediaNewsContentStore: { loadRedditNewRecords, setMediaPreview },
+    mediaNewsContentStore: { loadRedditNewRecords, setMediaPreview, setMediaCollection },
     mediaNewsUI: { modeSelectMedia },
   } = useMediaNewsStore();
   const {
@@ -41,6 +41,9 @@ const RedditNewContainer: FC = () => {
     });
     ipcRenderer.receiveMediaGroupPreview((_, data) => {
       setMediaPreview(data);
+    });
+    ipcRenderer.getMediaGroupCollection((_, data) => {
+      setMediaCollection(data);
     });
     return () => {
       ipcRenderer.removeListenerResponseMyReddits();

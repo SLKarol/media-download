@@ -26,6 +26,7 @@ const ShowVideoInfo: FunctionComponent<Props> = ({ isOpen }) => {
       onClickAction,
       setMediaPreview,
       onClickDownloadYouTube,
+      setMediaCollection,
     },
   } = useRootStore();
 
@@ -37,6 +38,7 @@ const ShowVideoInfo: FunctionComponent<Props> = ({ isOpen }) => {
     ipcRenderer.receiveMediaPreview((_, param) => {
       setMediaPreview(param);
     });
+    ipcRenderer.getMediaCollection((_, data) => setMediaCollection(data));
   }, []);
 
   const onClick: MouseEventHandler<HTMLButtonElement> = (e) => {

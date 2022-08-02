@@ -16,7 +16,7 @@ const RedditNewsContent: FC = () => {
     <div className={styles.component}>
       {newRecordsUiData.map((r) => (
         <MediaCard key={r.id} {...r} onSelectMediaAction={onSelectMediaAction}>
-          {!r.haveVideo ? (
+          {!r.haveVideo && !r.collection ? (
             <SelectThisMediaForTelegram
               id={r.id}
               unSupportTelegram={r.unSupportTelegram}

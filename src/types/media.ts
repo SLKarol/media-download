@@ -59,6 +59,11 @@ export interface MediaSummary {
    * Как медиа-ресурс разбит на части
    */
   chapters?: Chapter[];
+
+  /**
+   * Альбом. Пока поддерживаются изображения
+   */
+  collection?: MediaAlbum;
 }
 
 /**
@@ -154,4 +159,25 @@ export type FileInTelegram = {
  */
 export interface MediaSummaryPreview extends MediaSummary {
   preview?: { enabled?: boolean; images: ImagePreview[] };
+}
+
+/**
+ * Содержимое альбома
+ */
+export interface MediaAlbumContent {
+  id: string;
+  width: number;
+  height: number;
+  /**
+   * base64
+   */
+  data: string;
+  url: string;
+}
+
+/**
+ * Запись альбома
+ */
+export interface MediaAlbum {
+  [K: string]: MediaAlbumContent;
 }

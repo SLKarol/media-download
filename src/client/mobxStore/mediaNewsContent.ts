@@ -3,7 +3,7 @@ import { makeAutoObservable } from 'mobx';
 
 import type { RootMediaNewsStore } from './rootMediaNews';
 import { MediaRecordStore } from './mediaRecord';
-import type { MediaSummaryUi, MediaSummaryPreview, MediaPreview } from '@/types/media';
+import type { MediaSummaryUi, MediaSummaryPreview, MediaPreview, MediaAlbum } from '@/types/media';
 import { MediaActions } from '@/client/constants/mediaActions';
 import { HasPrevNextPage } from '@/types/mediaForum';
 import { dateTimeToString } from '@/client/lib/date';
@@ -54,6 +54,7 @@ export class MediaNewsContentStore {
         unSupportTelegram,
         idVideoSource,
         created,
+        collection,
       } = record.videoDescription;
       re.push({
         title,
@@ -64,6 +65,7 @@ export class MediaNewsContentStore {
         unSupportTelegram,
         idVideoSource,
         created: created ? dateTimeToString(created) : null,
+        collection,
       });
     });
     return re;
@@ -122,4 +124,14 @@ export class MediaNewsContentStore {
   get haveRecords() {
     return !!this.newRecords.size;
   }
+
+  /**
+   * Записать альбом для медиа, состоящего в группе
+   */
+  setMediaCollection = ({ id, collection }: { collection: MediaAlbum; id: string }) => {
+    const media = this.newRecords.get(id);
+    if (media) {
+      media.setMediaCollection({ id, collection });
+    }
+  };
 }

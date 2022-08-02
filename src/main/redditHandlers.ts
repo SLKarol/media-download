@@ -3,6 +3,7 @@ import type { IpcMainInvokeEvent } from 'electron';
 import { AppSignals } from '@/constants/signals';
 import type { Reddit } from '@/lib/reddit';
 import { decodeImageUrlTo64 } from '@/lib/net';
+import { getImagesCollection } from '@/lib/redditUtils';
 
 /**
  * Запросить список моих подписок
@@ -32,13 +33,23 @@ export async function getRedditNews({
       limit,
       after,
     });
-    const records = data.filter(({ preview }) => !!preview);
+    const records = data.filter(({ preview, collection }) => !!preview || !!collection);
     // Отправить новые записи клиенту
     event.sender.send(AppSignals.REDDIT_RESPONSE_NEWS, { records, after: afterResult, channel });
 
     // Получить постеры к каждой записи
     const promises = records.map((n) => {
-      const { id, preview } = n;
+      const { id, preview, collection } = n;
+      // Если запись из Reddit с альбомом:
+      if (collection) {
+        return getImagesCollection(collection).then((loadedCollection) =>
+          event.sender.send(AppSignals.SEND_MEDIA_GROUP_COLLECTION, {
+            id,
+            collection: loadedCollection,
+          }),
+        );
+      }
+      // Иначе, если обычная запись без альбома:
       if ('images' in preview && preview.images.length) {
         const [firstImage] = preview.images;
         const {

@@ -1,5 +1,4 @@
 import Snoowrap from 'snoowrap';
-
 import type Store from 'electron-store';
 
 import { VIDEO_SOURCES } from '@/constants/videoSrc';

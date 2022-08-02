@@ -1,3 +1,4 @@
+import { extname } from 'path';
 import type { IpcMainInvokeEvent } from 'electron';
 import { Notification } from 'electron';
 import log from 'electron-log';
@@ -6,6 +7,7 @@ import { StatusFile } from '@client/mobxStore/fileStatus';
 import { AppSignals } from '@/constants/signals';
 import { createFullFileName, saveBase64ToFile } from '@/lib/files';
 import { downloadMedia } from '@/lib/videos';
+import type { MediaAlbum } from '@/types/media';
 
 /**
  * Скачать каритнку
@@ -77,4 +79,35 @@ export async function downloadPicture(params: {
     event.sender.send(AppSignals.BACKEND_ERROR, e);
     log.error(e);
   }
+}
+
+/**
+ * Сохраняет коллекцию на диске
+ */
+export async function downloadCollection({
+  collection,
+  idSource,
+  title,
+  savePath,
+}: {
+  collection: MediaAlbum;
+  title: string;
+  idSource: string;
+  savePath: string;
+}) {
+  if (idSource !== 'www.reddit.com') return false;
+  const values = Object.values(collection);
+  const countDigits = String(Math.abs(values.length)).length;
+
+  return values.map(({ data, url }, currentIndex) => {
+    const numberPart = `${currentIndex + 1}`.padStart(countDigits, '0');
+    let fileName = `${title}-${numberPart}`;
+    let ext = extname(url);
+    const idxQ = ext.indexOf('?');
+    if (idxQ > -1) {
+      ext = ext.substring(0, idxQ);
+    }
+    fileName += ext;
+    return saveBase64ToFile({ data, fileName, savePath });
+  });
 }

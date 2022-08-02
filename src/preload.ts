@@ -2,7 +2,7 @@ import { contextBridge, ipcRenderer, IpcRendererEvent, clipboard } from 'electro
 
 import { AppSignals } from './constants/signals';
 import { FormDataSelectChapters } from './types/downloader';
-import { PropsDownLoadVideo } from './types/media';
+import type { MediaAlbum, PropsDownLoadVideo } from './types/media';
 import { Settings } from './types/settings';
 
 /**
@@ -15,6 +15,8 @@ const EVENTS_HANDLERS = {
   receiveVideoInfo: AppSignals.SEND_VIDEO_INFO,
   receiveMediaPreview: AppSignals.SEND_MEDIA_PREVIEW,
   receiveMediaGroupPreview: AppSignals.SEND_MEDIA_GROUP_PREVIEW,
+  getMediaCollection: AppSignals.SEND_MEDIA_COLLECTION,
+  getMediaGroupCollection: AppSignals.SEND_MEDIA_GROUP_COLLECTION,
   onBackendError: AppSignals.BACKEND_ERROR,
   receiveSettings: AppSignals.SETTINGS_SEND,
   addJournalRecord: AppSignals.JOURNAL_ADD_RECORD,
@@ -61,6 +63,16 @@ contextBridge.exposeInMainWorld('electron', {
         ipcRenderer.invoke(AppSignals.DOWNLOAD_MEDIA, props),
       voteRecord: (props: { idRecord: string; idSource: string }) =>
         ipcRenderer.invoke(AppSignals.RECORD_VOTE, props),
+
+      // Скачать альбом
+      downloadCollection: (params: {
+        collection: MediaAlbum;
+        idRecord: string;
+        sendVote: boolean;
+        title: string;
+        url: string;
+        idSource: string;
+      }) => ipcRenderer.invoke(AppSignals.DOWNLOAD_COLLECTION, params),
 
       /**
        * Отписка от всех сообщений
@@ -111,6 +123,13 @@ contextBridge.exposeInMainWorld('electron', {
 
       sendPictureToTg: (media: { id: string; title: string; url: string; image: string }) =>
         ipcRenderer.invoke(AppSignals.TELEGRAM_SEND_PICTURE, media),
+
+      sendCollectionToTelegram: (param: {
+        collection: MediaAlbum;
+        idRecord: string;
+        title: string;
+        idSource: string;
+      }) => ipcRenderer.invoke(AppSignals.TELEGRAM_SEND_COLLECTION, param),
 
       sendMediaGroupToTg: (
         medias: {

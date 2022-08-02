@@ -15,6 +15,10 @@ interface Props {
    * Если возможность разбить на части?
    */
   hasChapters?: boolean;
+  /**
+   * Это коллекция изображений?
+   */
+  isCollection?: boolean;
 }
 
 const MediaCardVideoActions: FC<Props> = ({
@@ -22,6 +26,7 @@ const MediaCardVideoActions: FC<Props> = ({
   onSelectMediaAction,
   idVideoSource,
   hasChapters,
+  isCollection,
 }) => {
   const {
     uiState: { appBusy },
@@ -40,6 +45,7 @@ const MediaCardVideoActions: FC<Props> = ({
       onClick={onClick}
       idVideoSource={idVideoSource}
       hasChapters={hasChapters}
+      isCollection={isCollection}
     />
   );
 };

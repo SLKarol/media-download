@@ -2,6 +2,9 @@ import { net } from 'electron';
 
 import { getMimeType } from './images';
 
+/**
+ * Возвращает текстовое содержимое урла (html, json, etc)
+ */
 export function getTextContent(url: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const request = net.request({ url, useSessionCookies: true });
@@ -37,6 +40,21 @@ export function decodeImageUrlTo64(url: string): Promise<string> {
         resolve(`data:${mimeTypes};base64,${sourceImageB64}`);
       });
     });
+    request.end();
+  });
+}
+
+/**
+ * Проверка: Существует ли такой урл?
+ */
+export function urlExists(url: string): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    const request = net.request({ url });
+    request.on('response', (response) => {
+      response.on('error', () => resolve(false));
+      resolve(response.statusCode === 200);
+    });
+    request.on('error', () => resolve(false));
     request.end();
   });
 }

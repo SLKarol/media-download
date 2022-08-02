@@ -1,0 +1,27 @@
+.container {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.ul {
+  padding: 0;
+  margin: 0;
+  display: flex;
+  list-style: none;
+  transition: transform 0.75s;
+}
+
+.button {
+  position: absolute;
+  top: 50%;
+  z-index: 999;
+}
+
+.buttonLeft {
+  left: 1rem;
+}
+
+.buttonRight {
+  right: 1rem;
+}

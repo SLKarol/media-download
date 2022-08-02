@@ -202,8 +202,9 @@ export async function sendMediaGroupToTg(params: {
   telegramBot: Telegraf;
   telegramGropus: string[];
   telegramAdmin: string;
+  caption?: string;
 }): Promise<unknown> {
-  const { media, telegramBot, telegramGropus, telegramAdmin } = params;
+  const { media, telegramBot, telegramGropus, telegramAdmin, caption } = params;
   // Отсечь галереи
   const data = media.filter((d) => !d.url.startsWith('https://www.reddit.com/gallery/'));
 
@@ -211,7 +212,7 @@ export async function sendMediaGroupToTg(params: {
 
   const savedFiles = await Promise.allSettled(
     data.map(({ title, url }) => {
-      if (url.toLowerCase().endsWith('.gif')) {
+      if (url.toLowerCase().indexOf('.gif') > -1) {
         return telegramBot.telegram
           .sendAnimation(telegramAdmin, url, {
             caption: title,
@@ -251,8 +252,8 @@ export async function sendMediaGroupToTg(params: {
   // 2. Отправить альбомы
   const dataWithoutGif = savedFiles.filter((d) => !d.animation);
 
-  await sendPicturesToGroups({ pictures: dataWithoutGif, telegramBot, telegramGropus });
-  await sendGifsToGroups({ pictures: dataWithGif, telegramBot, telegramGropus });
+  await sendPicturesToGroups({ pictures: dataWithoutGif, telegramBot, telegramGropus, caption });
+  await sendGifsToGroups({ pictures: dataWithGif, telegramBot, telegramGropus, caption });
 
   return undefined;
 }

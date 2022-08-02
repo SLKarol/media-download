@@ -34,6 +34,16 @@ export enum AppSignals {
   SEND_MEDIA_GROUP_PREVIEW = 'app:send-mediaGroup-preview',
 
   /**
+   * Отправить медиа-альбом (коллекцию)
+   */
+  SEND_MEDIA_COLLECTION = 'app:send-media-collection',
+
+  /**
+   * Отправить медиа-альбом (коллекцию) для медиа, состоящего в группе
+   */
+  SEND_MEDIA_GROUP_COLLECTION = 'app:send-media-collection',
+
+  /**
    * Открыть ссылку в броузере
    */
   OPEN_URL = 'app:open-url',
@@ -69,6 +79,11 @@ export enum AppSignals {
   DOWNLOAD_MEDIA = 'download:media',
 
   /**
+   * Скачать альбом
+   */
+  DOWNLOAD_COLLECTION = 'download:collection',
+
+  /**
    * Оповещение: Добавлено видео для скачивания
    */
   JOURNAL_ADD_RECORD = 'journal:add-record',
@@ -92,6 +107,11 @@ export enum AppSignals {
    * Отправить картинку через телеграм-бота
    */
   TELEGRAM_SEND_PICTURE = 'telegram:send-picture',
+
+  /**
+   * Отправить коллекцию через телеграм-бота
+   */
+  TELEGRAM_SEND_COLLECTION = 'telegram:send-collection',
 
   /**
    * Запросить список моих субреддитов

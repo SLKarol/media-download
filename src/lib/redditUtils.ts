@@ -1,15 +1,50 @@
 import type { ImagePreview, Media } from 'snoowrap/dist/objects/Submission';
 import type { Submission } from 'snoowrap';
 
-import { MediaPreview, VideoParts, MediaSummaryPreview } from '@/types/media';
-import { decodeImageUrlTo64 } from '@/lib/net';
+import {
+  MediaPreview,
+  VideoParts,
+  MediaSummaryPreview,
+  MediaAlbum,
+  MediaAlbumContent,
+} from '@/types/media';
+import { decodeImageUrlTo64, urlExists } from '@/lib/net';
 import { downloadRedGifsInfo } from '@/lib/redgifs';
 import { downloadImgurInfo } from '@/lib/imgur';
 
 const REGEXP_GIF_REDDIT = /https:\/\/i.redd.it\/\w+(.gif)?/;
 
+/**
+ * snoowrap не записал этот тип записи альбома, сделаю за них
+ */
+interface RedditGalleryItem {
+  y: number;
+  x: number;
+  u: string;
+}
+
+/**
+ * snoowrap не записал этот тип альбома, сделаю за них
+ */
+interface MediaMetadata {
+  [K: string]: {
+    status: string;
+    e: string;
+    m: string;
+    id: string;
+    o: RedditGalleryItem[];
+    p: RedditGalleryItem[];
+    s: RedditGalleryItem;
+  };
+}
+
+/**
+ * Дополненные данные из api reddit
+ */
 interface ExtendSubmission extends Submission {
   crosspost_parent_list: [{ secure_media: Media }];
+  gallery_data?: { items: { media_id: string; id: string }[] };
+  media_metadata: MediaMetadata;
 }
 
 /**
@@ -68,7 +103,7 @@ export function checkHaveVideo(url: string, media: Media) {
  * @param {Object} record.media Скомбинированная инфа о видео
  * @return {Promise} videoRecords
  */
-export function getVideoUrl(record: Partial<Submission>): VideoParts | null {
+async function getVideoUrl(record: Partial<Submission>): Promise<VideoParts | null> {
   const { url = '', media } = record;
   // Это gifv?
   if (url.match(/.(gifv)$/i)) {
@@ -89,7 +124,8 @@ export function getVideoUrl(record: Partial<Submission>): VideoParts | null {
       return null;
     }
     const urlAudio = urlVideo.replace(fileName, 'DASH_audio.mp4');
-    return { urlVideo, urlAudio };
+    const mediaExist = await urlExists(urlAudio);
+    return { urlVideo, urlAudio: mediaExist ? urlAudio : undefined };
   }
   return null;
 }
@@ -110,6 +146,8 @@ export async function parseSubmissionInfo(submission: Submission): Promise<Media
     url,
     permalink,
     created_utc: createdUtc,
+    gallery_data: galleryData,
+    media_metadata: mediaMetadata,
   } = submission as ExtendSubmission;
   // media может быть не своё, а из репоста
   let videoMedia: Media | null = media;
@@ -174,6 +212,31 @@ export async function parseSubmissionInfo(submission: Submission): Promise<Media
     };
   }
 
+  // Если это галерея, то разобрать, что в этой галерее
+  if (galleryData && mediaMetadata && mediaMetadataContentImage(mediaMetadata)) {
+    const dataCollection = getMediaMetadataForImages(mediaMetadata);
+    const firstImage = Object.values(dataCollection)[0];
+
+    return {
+      id,
+      haveVideo: false,
+      videoParts: { urlVideo: url },
+      title,
+      subReddit: subRedditDisplayName,
+      over18,
+      height: firstImage ? firstImage.height : null,
+      width: firstImage ? firstImage.width : null,
+      idVideoSource: 'www.reddit.com',
+      permalink,
+      url,
+      downloadedFileName: '',
+      previewImages: {},
+      preview,
+      created: date.toJSON(),
+      collection: dataCollection,
+    };
+  }
+
   // Попытки взять видео из других источников
   let height: number;
   let width: number;
@@ -209,4 +272,78 @@ export async function parseSubmissionInfo(submission: Submission): Promise<Media
     preview,
     created: date.toJSON(),
   };
+}
+
+/**
+ * В данных галереи mediaMetadata есть картинка?
+ */
+function mediaMetadataContentImage(mediaMetadata: MediaMetadata) {
+  return Object.keys(mediaMetadata).some((key) => mediaMetadata[key].e === 'Image');
+}
+
+/**
+ * Получить данные из альбомов для загрузки изображений
+ */
+function getMediaMetadataForImages(mediaMetadata: MediaMetadata): MediaAlbum {
+  // Получить ключи из объекта
+  const keys = Object.keys(mediaMetadata);
+  // По этим ключам собрать данные по галереи
+  return keys.reduce((acc, key) => {
+    const record = getMediaInfoFromMediaMetadata(mediaMetadata[key]);
+    if (record) acc[key] = record;
+    return acc;
+  }, {} as MediaAlbum);
+}
+
+/**
+ * Разобрать данные по записи из альбома:
+ * Если инвалид, вернуть null,
+ * Иначе вернуть данные о изображении: размер, ссылку
+ */
+function getMediaInfoFromMediaMetadata(record: {
+  status: string;
+  e: string;
+  m: string;
+  id: string;
+  o: RedditGalleryItem[];
+  p: RedditGalleryItem[];
+  s: RedditGalleryItem;
+}): MediaAlbumContent | null {
+  if (record.status === 'valid' && record.e === 'Image') {
+    const {
+      s: { u, x, y },
+      id,
+    } = record;
+    return { data: '', height: y, id, url: u, width: x };
+  }
+  return null;
+}
+
+/**
+ * Загрузка изображений для коллекции/альбома
+ */
+export async function getImagesCollection(collection: MediaAlbum): Promise<MediaAlbum> {
+  // Получить ключи из объекта
+  const keys = Object.keys(collection);
+  // По этим ключам собрать данные по галереи
+  const data = await Promise.allSettled(
+    keys.map((k) => getMediaMetadataRecordContent(collection[k])),
+  );
+  const re = data.reduce((acc, record) => {
+    if (record.status === 'rejected' || record.value === null) return acc;
+    acc[record.value.id] = record.value;
+    return acc;
+  }, {} as MediaAlbum);
+  return re;
+}
+
+/**
+ * Непосредственная запись base64 записи альбома
+ */
+async function getMediaMetadataRecordContent({
+  url,
+  ...props
+}: MediaAlbumContent): Promise<MediaAlbumContent> {
+  const data = await decodeImageUrlTo64(url);
+  return { ...props, url, data };
 }

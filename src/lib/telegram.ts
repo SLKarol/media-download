@@ -35,6 +35,10 @@ type SendPicturesToGroup = {
   pictures: FileInTelegram[];
   telegramBot: Telegraf;
   telegramGropus: string[];
+  /**
+   * Используется для коллекций: Если в FileInTelegram не задан title, то выводится caption
+   */
+  caption?: string;
 };
 
 /**
@@ -44,6 +48,7 @@ export async function sendPicturesToGroups({
   pictures,
   telegramBot,
   telegramGropus,
+  caption,
 }: SendPicturesToGroup) {
   // Получить группу по 10 изображений
   const size = 10;
@@ -61,7 +66,7 @@ export async function sendPicturesToGroups({
       await delay(DELAY_SECONDS);
       await telegramBot.telegram.sendMediaGroup(
         group.trim(),
-        media.map(({ id, title }) => ({ type: 'photo', media: id, caption: title })),
+        media.map(({ id, title }) => ({ type: 'photo', media: id, caption: title || caption })),
         { allow_sending_without_reply: true, protect_content: false },
       );
     }
@@ -72,12 +77,13 @@ export async function sendGifsToGroups({
   pictures,
   telegramBot,
   telegramGropus,
+  caption,
 }: SendPicturesToGroup) {
   for (const group of telegramGropus) {
     for (const media of pictures) {
       await delay(DELAY_SECONDS);
       await telegramBot.telegram.sendAnimation(group.trim(), media.id, {
-        caption: media.title,
+        caption: media.title || caption,
         allow_sending_without_reply: true,
         protect_content: false,
       });

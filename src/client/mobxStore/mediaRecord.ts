@@ -1,10 +1,10 @@
-import { makeAutoObservable } from 'mobx';
+import { makeAutoObservable, toJS } from 'mobx';
 
 import { TypeMedia } from '@/constants/media';
 import type { RootStore } from './root';
 import { MediaActions } from '@/client/constants/mediaActions';
 import type { MediaNewsContentStore } from './mediaNewsContent';
-import { MediaPreview, MediaSummary } from '@/types/media';
+import { MediaAlbum, MediaPreview, MediaSummary } from '@/types/media';
 import { IMAGE_SIZE_LIMIT, IMAGE_SUM_DIMENSION_LIMIT } from '@/constants/telegram';
 import { isCorrectRatio } from '@/lib/images';
 
@@ -24,6 +24,7 @@ const initialStateMediaSummary: MediaSummary = {
   created: '',
   url: '',
   chapters: undefined,
+  collection: undefined,
 };
 
 export class MediaRecordStore {
@@ -153,10 +154,12 @@ export class MediaRecordStore {
   onClickAction = (userAction: MediaActions) => {
     if (userAction === MediaActions.DOWNLOAD_MEDIA) {
       if (this.info.haveVideo) return this.downloadVideo();
+      if (this.info.collection) return this.downloadCollection();
       return this.downloadPicture();
     }
     if (userAction === MediaActions.SEND_TO_TELEGRAM) {
       if (this.info.haveVideo) return this.sendVideoToTelegram();
+      if (this.info.collection) return this.sendCollectionToTelegram();
       return this.sendPictureToTelegram();
     }
     if (userAction === MediaActions.COPY_TO_CLIP_BOARD) return this.copyToClipBoard();
@@ -316,5 +319,39 @@ export class MediaRecordStore {
 
   selectChapters = () => {
     (this.rootStore as RootStore).uiState.toggleShowDialogSelectChapters();
+  };
+
+  /**
+   * Записать данные о коллекции
+   */
+  setMediaCollection = ({ collection, id }: { collection: MediaAlbum; id: string }) => {
+    if (id !== this.info.id) return undefined;
+    this.info.collection = collection;
+  };
+
+  /**
+   * Скачать коллекцию изображений
+   */
+  downloadCollection = () => {
+    const { id: idRecord, url, title, idVideoSource, collection } = this.info;
+    const { sendVote } = this;
+    window.electron.ipcRenderer.downloadCollection({
+      collection: toJS(collection),
+      idRecord,
+      sendVote,
+      title,
+      url,
+      idSource: idVideoSource,
+    });
+  };
+
+  sendCollectionToTelegram = () => {
+    const { id: idRecord, title, idVideoSource, collection } = this.info;
+    window.electron.ipcRenderer.sendCollectionToTelegram({
+      collection: toJS(collection),
+      idRecord,
+      title,
+      idSource: idVideoSource,
+    });
   };
 }
