@@ -11,6 +11,7 @@ import {
 import { decodeImageUrlTo64, urlExists } from '@/lib/net';
 import { downloadRedGifsInfo } from '@/lib/redgifs';
 import { downloadImgurInfo } from '@/lib/imgur';
+import { downloadGfycatInfo } from './gfycat';
 
 const REGEXP_GIF_REDDIT = /https:\/\/i.redd.it\/\w+(.gif)?/;
 
@@ -156,6 +157,7 @@ export async function parseSubmissionInfo(submission: Submission): Promise<Media
   }
   const date = new Date(0);
   date.setUTCSeconds(createdUtc);
+
   // Если видео размещено на redgifs.com, то так взять инфу:
   if (videoMedia && 'type' in videoMedia && videoMedia.type === 'redgifs.com') {
     const {
@@ -212,6 +214,44 @@ export async function parseSubmissionInfo(submission: Submission): Promise<Media
     };
   }
 
+  // Если это из gfycat. то разобрать
+  if (url.includes('gfycat')) {
+    const {
+      haveVideo,
+      videoParts,
+      height: h,
+      width: w,
+      previewImages,
+    } = await downloadGfycatInfo(url);
+    const imgSrc = { height: h, width: w, url: previewImages.src };
+    return {
+      id,
+      haveVideo,
+      videoParts,
+      title,
+      subReddit: subRedditDisplayName,
+      over18,
+      height: h,
+      width: w,
+      idVideoSource: 'www.reddit.com',
+      permalink,
+      url,
+      downloadedFileName: '',
+      previewImages,
+      preview: {
+        images: [
+          {
+            source: imgSrc,
+            resolutions: [imgSrc],
+            variants: {},
+            id: `-${id}`,
+          },
+        ],
+      },
+      created: date.toJSON(),
+    };
+  }
+
   // Если это галерея, то разобрать, что в этой галерее
   if (galleryData && mediaMetadata && mediaMetadataContentImage(mediaMetadata)) {
     const dataCollection = getMediaMetadataForImages(mediaMetadata);
@@ -254,6 +294,11 @@ export async function parseSubmissionInfo(submission: Submission): Promise<Media
   }
 
   const videoParts = await getVideoUrl({ url, media: videoMedia });
+
+  // В случае, если url содержит gif, то записать этот урл в preview Images
+  if (/.gif/i.test(url)) {
+    preview.images[0].source.url = url;
+  }
 
   return {
     id,

@@ -21,7 +21,15 @@ const ShowVideoInfo: FunctionComponent<Props> = ({ isOpen }) => {
   const {
     uiState: { appBusy, oneVideoDisabled, setAppBusy },
     videoInfo: {
-      videoDescription: { title, haveVideo, id, idVideoSource, subtitles, hasChapters },
+      videoDescription: {
+        title,
+        haveVideo,
+        id,
+        idVideoSource,
+        subtitles,
+        hasChapters,
+        videoFormats,
+      },
       setInfo,
       onClickAction,
       setMediaPreview,
@@ -53,12 +61,14 @@ const ShowVideoInfo: FunctionComponent<Props> = ({ isOpen }) => {
       const youtubeSubtitleLanguageCode = currentTarget.getAttribute(
         'data-youtube-subtitle-language-code',
       );
+      const videoQuality = currentTarget.getAttribute('data-video-quality');
 
       onClickDownloadYouTube({
         media: youtubeMedia,
         subtitle: youtubeSubtitle,
         subtitleType: youtubeSubtitleType,
         subtitleLanguageCode: youtubeSubtitleLanguageCode,
+        videoQuality,
       });
     }
   };
@@ -78,6 +88,7 @@ const ShowVideoInfo: FunctionComponent<Props> = ({ isOpen }) => {
             onClick={onClick}
             subtitles={subtitles}
             hasChapters={hasChapters}
+            videoFormats={videoFormats}
           />
         )}
       </Card>

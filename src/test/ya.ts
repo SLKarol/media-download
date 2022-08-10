@@ -12,10 +12,4 @@ async function test() {
   await writeFile('topic.json', JSON.stringify(r), { encoding: 'utf8' });
 }
 
-const event: any = {
-  sender: {
-    send: (a, b) => console.log(a, b),
-  },
-};
-
 test();

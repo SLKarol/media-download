@@ -26,8 +26,8 @@ const Description: FC = () => {
           {subReddit}
         </li>
       )}
-      {over18 && <li className={styles.listItem}>18+</li>}
-      {!haveVideo && <li className={styles.listItem}>Видео недоступно</li>}
+      {over18 ? <li className={styles.listItem}>18+</li> : null}
+      {!haveVideo ? <li className={styles.listItem}>Видео недоступно</li> : null}
       <li className={styles.listItemMarginTop}>
         <CheckSendVote />
       </li>

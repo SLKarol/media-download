@@ -5,6 +5,7 @@ import { downloadYapPageInfo } from '@/lib/yaplakal';
 import { downloadRedGifsInfo } from '@/lib/redgifs';
 import { downloadImgurInfo } from '@/lib/imgur';
 import { downloadYouTubeInfo } from '@/lib/youtube';
+import { downloadGfycatInfo } from '@/lib/gfycat';
 
 /**
  * Запрос инфы о видео
@@ -28,6 +29,9 @@ export async function getVideoInfo(props: { url: string; reddit: Reddit }) {
   }
   if (idVideoSource === 'www.youtube.com') {
     info = await downloadYouTubeInfo(url);
+  }
+  if (idVideoSource === 'gfycat.com') {
+    info = await downloadGfycatInfo(url);
   }
   return info;
 }

@@ -93,6 +93,7 @@ export class DownloaderMedia {
       eventSender,
       idVideoSource,
       runAfterWork,
+      itagQuality = [],
     } = params;
     const idDownload = randomUUID();
     const savePath = this.store.get('defaultSavePath');
@@ -134,6 +135,7 @@ export class DownloaderMedia {
         idDownload,
         eventSender,
         runAfterWork,
+        itagQuality,
       });
     }
     // Скачать звук
@@ -181,8 +183,9 @@ export class DownloaderMedia {
     eventSender: WebContents;
     // eslint-disable-next-line no-unused-vars
     runAfterWork?: (fullFileName: string) => void;
+    itagQuality: number[];
   }) => {
-    const { fullFileName, youTubeUrl, idDownload, eventSender, runAfterWork } = params;
+    const { fullFileName, youTubeUrl, idDownload, eventSender, runAfterWork, itagQuality } = params;
     // Создать потоки загрузки
     const audio = ytdl(youTubeUrl, { quality: 'highestaudio' }).on(
       'progress',
@@ -191,7 +194,7 @@ export class DownloaderMedia {
         tracker.audio = { downloaded, total };
       },
     );
-    const video = ytdl(youTubeUrl, { quality: 'highestvideo' }).on(
+    const video = ytdl(youTubeUrl, { quality: itagQuality }).on(
       'progress',
       (_, downloaded, total) => {
         const tracker = this.currentDownload.get(idDownload);

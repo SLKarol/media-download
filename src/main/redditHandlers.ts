@@ -33,12 +33,16 @@ export async function getRedditNews({
       limit,
       after,
     });
-    const records = data.filter(({ preview, collection }) => !!preview || !!collection);
+
     // Отправить новые записи клиенту
-    event.sender.send(AppSignals.REDDIT_RESPONSE_NEWS, { records, after: afterResult, channel });
+    event.sender.send(AppSignals.REDDIT_RESPONSE_NEWS, {
+      records: data,
+      after: afterResult,
+      channel,
+    });
 
     // Получить постеры к каждой записи
-    const promises = records.map((n) => {
+    const promises = data.map((n) => {
       const { id, preview, collection } = n;
       // Если запись из Reddit с альбомом:
       if (collection) {

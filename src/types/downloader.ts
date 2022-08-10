@@ -53,6 +53,11 @@ export interface ParamsAddDownload {
    * URL audio-ресурса
    */
   urlAudio?: string | undefined;
+  /**
+   * Массив Quality_and_formats
+   * https://en.wikipedia.org/wiki/YouTube#Quality_and_formats
+   */
+  itagQuality?: number[];
 }
 
 export interface ParamsSenderAddDownload extends ParamsAddDownload {

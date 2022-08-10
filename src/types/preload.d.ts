@@ -305,6 +305,11 @@ declare global {
           permalink: string;
           title: string;
           idVideoSource: string;
+          /**
+           * Массив Quality_and_formats
+           * (https://en.wikipedia.org/wiki/YouTube#Quality_and_formats)
+           */
+          itagQuality: number[];
         }): void;
 
         /**

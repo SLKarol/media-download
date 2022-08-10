@@ -83,6 +83,7 @@ export function setHandlers(props: {
       log.error(err);
       event.sender.send(AppSignals.BACKEND_ERROR, err);
     }
+    return undefined;
   });
 
   ipcMain.handle(AppSignals.SETTINGS_SAVE, (_, ...args) => {
@@ -372,7 +373,7 @@ export function setHandlers(props: {
 
     await sendMediaGroupToTg({ telegramGropus, media, telegramBot, telegramAdmin, caption: title });
 
-    sender.send(AppSignals.JOURNAL_ADD_RECORD, {
+    return sender.send(AppSignals.JOURNAL_ADD_RECORD, {
       id: idRecord,
       title,
       status: StatusFile.TELEGRAM_SEND,

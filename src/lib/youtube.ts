@@ -1,4 +1,5 @@
 import ytdl from 'ytdl-core';
+
 import type { MediaSummary } from '@/types/media';
 
 /**
@@ -6,9 +7,11 @@ import type { MediaSummary } from '@/types/media';
  */
 export async function downloadYouTubeInfo(url: string): Promise<MediaSummary> {
   const props = await ytdl.getInfo(url);
+
   const {
     videoDetails: { title, thumbnails, publishDate, chapters },
     player_response: { captions },
+    formats,
   } = props;
 
   const posterUrl = thumbnails.length ? thumbnails[thumbnails.length - 1].url : '';
@@ -20,6 +23,18 @@ export async function downloadYouTubeInfo(url: string): Promise<MediaSummary> {
     languageCode,
     languageName: simpleText,
   }));
+  /**
+   * Собрать инфу о доступных видеоформатах в таком виде:
+   * Map("1080p", [код_кодека (https://en.wikipedia.org/wiki/YouTube#Quality_and_formats)])
+   */
+  const listFormats = new Map<string, number[]>();
+  formats.forEach(({ hasVideo, itag, qualityLabel }) => {
+    const format = listFormats.get(qualityLabel);
+    if (format && hasVideo) {
+      format.push(itag);
+    }
+    listFormats.set(qualityLabel, [itag]);
+  });
 
   return {
     id,
@@ -34,5 +49,6 @@ export async function downloadYouTubeInfo(url: string): Promise<MediaSummary> {
     permalink: `/watch?v=${id}`,
     subtitles: captions ? subtitles : undefined,
     chapters,
+    listFormats,
   };
 }

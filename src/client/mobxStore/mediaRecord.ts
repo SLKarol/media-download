@@ -59,6 +59,7 @@ export class MediaRecordStore {
       created,
       subtitles,
       chapters,
+      listFormats,
     } = value;
     this.info = {
       downloadedFileName,
@@ -77,6 +78,7 @@ export class MediaRecordStore {
       created,
       subtitles,
       chapters,
+      listFormats,
     };
   };
 
@@ -104,6 +106,7 @@ export class MediaRecordStore {
       height = undefined,
       previewImages = {},
       chapters,
+      listFormats,
       ...info
     } = this.info;
     const { height: previewImageHeight = undefined, width: previewImageWidth = undefined } =
@@ -138,7 +141,17 @@ export class MediaRecordStore {
         decoded.length < IMAGE_SIZE_LIMIT;
     }
     const hasChapters = Array.isArray(chapters) && chapters.length > 0;
-    return { ...info, width, height, dimensions, previewImages, unSupportTelegram, hasChapters };
+    const videoFormats = listFormats ? Array.from(listFormats.keys()) : undefined;
+    return {
+      ...info,
+      width,
+      height,
+      dimensions,
+      previewImages,
+      unSupportTelegram,
+      hasChapters,
+      videoFormats,
+    };
   }
 
   /**
@@ -307,14 +320,35 @@ export class MediaRecordStore {
     }
   };
 
-  onClickDownloadYouTube = (params: {
+  /**
+   * Скачать ютуб-ресурс
+   */
+  onClickDownloadYouTube = ({
+    media,
+    subtitle,
+    subtitleLanguageCode,
+    subtitleType,
+    videoQuality,
+  }: {
     media: TypeMedia;
     subtitle: string;
     subtitleType: string;
     subtitleLanguageCode: string;
+    videoQuality: string;
   }) => {
-    const { permalink, title, idVideoSource } = this.info;
-    window.electron.ipcRenderer.downloadYoutube({ ...params, permalink, title, idVideoSource });
+    const { permalink, title, idVideoSource, listFormats } = this.info;
+    const mediaFormats = listFormats.get(videoQuality);
+
+    window.electron.ipcRenderer.downloadYoutube({
+      media,
+      subtitle,
+      subtitleLanguageCode,
+      subtitleType,
+      permalink,
+      title,
+      idVideoSource,
+      itagQuality: [...mediaFormats],
+    });
   };
 
   selectChapters = () => {
@@ -327,6 +361,7 @@ export class MediaRecordStore {
   setMediaCollection = ({ collection, id }: { collection: MediaAlbum; id: string }) => {
     if (id !== this.info.id) return undefined;
     this.info.collection = collection;
+    return undefined;
   };
 
   /**

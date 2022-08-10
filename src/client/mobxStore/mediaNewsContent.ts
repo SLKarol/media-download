@@ -55,6 +55,7 @@ export class MediaNewsContentStore {
         idVideoSource,
         created,
         collection,
+        videoFormats,
       } = record.videoDescription;
       re.push({
         title,
@@ -66,6 +67,7 @@ export class MediaNewsContentStore {
         idVideoSource,
         created: created ? dateTimeToString(created) : null,
         collection,
+        videoFormats,
       });
     });
     return re;

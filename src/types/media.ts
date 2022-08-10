@@ -64,6 +64,11 @@ export interface MediaSummary {
    * Альбом. Пока поддерживаются изображения
    */
   collection?: MediaAlbum;
+
+  /**
+   * список доступных форматов у медиа
+   */
+  listFormats?: Map<string, number[]>;
 }
 
 /**
@@ -139,6 +144,10 @@ export interface MediaSummaryUi extends MediaSummary {
    * Есть ли возможность разбить на части?
    */
   hasChapters?: boolean;
+  /**
+   * "720p", "1080p" и т.д.
+   */
+  videoFormats?: string[];
 }
 
 export interface FileSendTelegram {
@@ -180,4 +189,21 @@ export interface MediaAlbumContent {
  */
 export interface MediaAlbum {
   [K: string]: MediaAlbumContent;
+}
+
+export interface GfycatResponse {
+  gfyItem: {
+    gfyId: string;
+    title: string;
+    nsfw: boolean;
+    createDate: number;
+    author: string;
+    width: number;
+    height: number;
+    gifUrl?: string;
+    mp4Url?: string;
+    hasAudio: boolean;
+    url?: string;
+    posterUrl: string;
+  };
 }

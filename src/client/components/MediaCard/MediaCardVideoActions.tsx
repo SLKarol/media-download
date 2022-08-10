@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import type { FC, MouseEventHandler } from 'react';
 import { observer } from 'mobx-react-lite';
 
@@ -9,16 +8,18 @@ import { MediaActions } from '@/client/constants/mediaActions';
 
 interface Props {
   id: string;
+  // eslint-disable-next-line no-unused-vars
   onSelectMediaAction: (id: string, action: MediaActions) => void;
   idVideoSource: string;
   /**
    * Если возможность разбить на части?
    */
   hasChapters?: boolean;
+
   /**
-   * Это коллекция изображений?
+   * "720p", "1080p" и т.д.
    */
-  isCollection?: boolean;
+  videoFormats?: string[];
 }
 
 const MediaCardVideoActions: FC<Props> = ({
@@ -26,7 +27,7 @@ const MediaCardVideoActions: FC<Props> = ({
   onSelectMediaAction,
   idVideoSource,
   hasChapters,
-  isCollection,
+  videoFormats,
 }) => {
   const {
     uiState: { appBusy },
@@ -45,7 +46,7 @@ const MediaCardVideoActions: FC<Props> = ({
       onClick={onClick}
       idVideoSource={idVideoSource}
       hasChapters={hasChapters}
-      isCollection={isCollection}
+      videoFormats={videoFormats}
     />
   );
 };

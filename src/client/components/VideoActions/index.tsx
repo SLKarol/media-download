@@ -25,11 +25,10 @@ interface Props {
    * Если возможность разбить на части?
    */
   hasChapters?: boolean;
-
   /**
-   * Это коллекция изображений?
+   * "720p", "1080p" и т.д.
    */
-  isCollection?: boolean;
+  videoFormats?: string[];
 }
 
 const VideoActions: FC<Props> = ({
@@ -40,6 +39,7 @@ const VideoActions: FC<Props> = ({
   idVideoSource,
   subtitles,
   hasChapters,
+  videoFormats,
 }) => (
   <ButtonGroup className={className}>
     {idVideoSource === 'www.youtube.com' ? (
@@ -49,6 +49,7 @@ const VideoActions: FC<Props> = ({
           onClick={onClick}
           disabled={disabled}
           subtitles={subtitles}
+          videoFormats={videoFormats}
         />
         {hasChapters ? (
           <DownloadChapters idMedia={idMedia} onClick={onClick} disabled={disabled} />

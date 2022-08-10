@@ -21,5 +21,8 @@ VIDEO_SOURCES.set('www.youtube.com', {
   pattern:
     /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/,
 });
+VIDEO_SOURCES.set('gfycat.com', {
+  pattern: /https:\/\/(www\.)?gfycat.com/,
+});
 
 export { VIDEO_SOURCES };

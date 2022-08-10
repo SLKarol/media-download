@@ -48,7 +48,7 @@ export function decodeImageUrlTo64(url: string): Promise<string> {
  * Проверка: Существует ли такой урл?
  */
 export function urlExists(url: string): Promise<boolean> {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const request = net.request({ url });
     request.on('response', (response) => {
       response.on('error', () => resolve(false));
