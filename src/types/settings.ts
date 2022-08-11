@@ -18,6 +18,16 @@ export interface Settings {
    * количество записей, которое взять из reddit
    */
   redditLimitRecords: number;
+
+  /**
+   * Ожидание между отправками в телеграм-группы
+   */
+  waitMsWhenSendTelegram: number;
+
+  /**
+   * Шаблон текста-поздравления
+   */
+  descriptionHoliday: string;
 }
 
 /**

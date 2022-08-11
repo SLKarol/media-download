@@ -217,7 +217,11 @@ declare global {
             title: string;
             unSupportTelegram: boolean;
           }[],
-          helloMessage?: string,
+          /**
+           * Название праздника.
+           * Если не передано, то в телеграм отправляться не будет
+           */
+          holydayName?: string,
         ): void;
 
         /**

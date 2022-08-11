@@ -9,6 +9,6 @@ export const IMAGE_SIZE_LIMIT = 10485760;
 export const IMAGE_SUM_DIMENSION_LIMIT = 10000;
 
 /**
- * Задержка в секундах между отправками в телеграм
+ * Как будет обозначаться в шаблоне название праздника
  */
-export const DELAY_SECONDS = 2345;
+export const HOLIDAY_NAME_PATTERN = '$HOLYDAY';

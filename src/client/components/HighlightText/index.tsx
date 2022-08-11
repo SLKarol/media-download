@@ -24,8 +24,8 @@ const HighlightText: FC<Props> = ({ text, query }) => {
   }
   const regexp = new RegExp(words.join('|'), 'gi');
   const tokens: ReactNode[] = [];
-  // eslint-disable-next-line no-constant-condition
 
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     const match = regexp.exec(text);
     if (!match) {

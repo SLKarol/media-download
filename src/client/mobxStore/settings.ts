@@ -16,6 +16,8 @@ export class SettingsStore {
     telegramAdmin: '',
     yaPlakal: { listForums: {} },
     redditLimitRecords: 12,
+    waitMsWhenSendTelegram: 2345,
+    descriptionHoliday: '',
   };
 
   // eslint-disable-next-line no-unused-vars

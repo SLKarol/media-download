@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Checkbox, Button } from '@blueprintjs/core';
+import { Tooltip2 } from '@blueprintjs/popover2';
 
 import { useRootStore } from '@client/mobxStore/root';
 import { useMediaNewsStore } from '@client/mobxStore/rootMediaNews';
@@ -22,7 +23,9 @@ const RedditNewsTodayHoliday: FC = () => {
         label={selectedHoliday}
         onChange={toggleEnabledSendHolidayName}
       />
-      <Button icon="random" onClick={changeRandomHolyday} />
+      <Tooltip2 content="Выбрать другой праздник">
+        <Button icon="random" onClick={changeRandomHolyday} />
+      </Tooltip2>
     </div>
   );
 };

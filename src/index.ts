@@ -56,6 +56,8 @@ const createWindow = (): void => {
       telegramAdmin: '',
       yaPlakal: { listForums: {} },
       redditLimitRecords: 12,
+      waitMsWhenSendTelegram: 2345,
+      descriptionHoliday: '',
     },
   });
   const menuBuilder = new MenuBuilder(mainWindow, store);
@@ -123,6 +125,7 @@ app.on('activate', () => {
 // code. You can also put them in separate files and import them here.
 app.whenReady().then(() => {
   installExtension([MOBX_DEVTOOLS, REACT_DEVELOPER_TOOLS]).catch((err) =>
+    // eslint-disable-next-line no-console
     console.log('An error occurred: ', err),
   );
 });

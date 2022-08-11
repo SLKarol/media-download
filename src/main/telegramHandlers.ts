@@ -9,7 +9,7 @@ import type { Telegraf } from 'telegraf';
 import delay from '@stanislavkarol/delay';
 
 import { StatusFile } from '@client/mobxStore/fileStatus';
-import { DELAY_SECONDS } from '@/constants/telegram';
+
 import { AppSignals } from '@/constants/signals';
 import { createFullFileName } from '@/lib/files';
 import { downloadMedia } from '@/lib/videos';
@@ -20,7 +20,6 @@ type CombineAnimationType = { animation: { file_id: string }; video: { file_id: 
 
 /**
  * Отправить файл в телеграм
- * todo отправить через POST (form-data)
  */
 export async function sendVideoInTgGroup(props: {
   event: IpcMainInvokeEvent;
@@ -36,6 +35,10 @@ export async function sendVideoInTgGroup(props: {
   downloadedFileName: string;
   tgAdmin: string;
   idVideoSource: string;
+  /**
+   * пауза между отправками в группу
+   */
+  delayMs: number;
 }): Promise<void> {
   const {
     event,
@@ -50,11 +53,11 @@ export async function sendVideoInTgGroup(props: {
     thumb,
     tgAdmin,
     idVideoSource,
+    delayMs,
   } = props;
 
   if (idVideoSource === 'www.youtube.com') {
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    return sendYouTubeVideoInTgGroup({ urlVideo, tgGroups, telegramBot });
+    return sendYouTubeVideoInTgGroup({ urlVideo, tgGroups, telegramBot, delayMs });
   }
 
   // Отдать в статистику инфо, что скачивается файл
@@ -119,7 +122,7 @@ export async function sendVideoInTgGroup(props: {
     } = sendTgresult;
     if (fileId) {
       for (const group of tgGroups) {
-        await delay(DELAY_SECONDS);
+        await delay(delayMs);
         await telegramBot.telegram.sendVideo(group.trim(), fileId, {
           caption: title,
           height,
@@ -203,8 +206,9 @@ export async function sendMediaGroupToTg(params: {
   telegramGropus: string[];
   telegramAdmin: string;
   caption?: string;
+  delayMs: number;
 }): Promise<unknown> {
-  const { media, telegramBot, telegramGropus, telegramAdmin, caption } = params;
+  const { media, telegramBot, telegramGropus, telegramAdmin, caption, delayMs } = params;
   // Отсечь галереи
   const data = media.filter((d) => !d.url.startsWith('https://www.reddit.com/gallery/'));
 
@@ -252,8 +256,20 @@ export async function sendMediaGroupToTg(params: {
   // 2. Отправить альбомы
   const dataWithoutGif = savedFiles.filter((d) => !d.animation);
 
-  await sendPicturesToGroups({ pictures: dataWithoutGif, telegramBot, telegramGropus, caption });
-  await sendGifsToGroups({ pictures: dataWithGif, telegramBot, telegramGropus, caption });
+  await sendPicturesToGroups({
+    pictures: dataWithoutGif,
+    telegramBot,
+    telegramGropus,
+    caption,
+    delayMs,
+  });
+  await sendGifsToGroups({
+    pictures: dataWithGif,
+    telegramBot,
+    telegramGropus,
+    caption,
+    delayMs,
+  });
 
   return undefined;
 }
@@ -265,10 +281,14 @@ export async function sendHolidayNameToTg(params: {
   telegramBot: Telegraf;
   telegramGropus: string[];
   holidayMessage: string;
+  /**
+   * пауза между отправками в группу
+   */
+  delayMs: number;
 }): Promise<undefined> {
-  const { holidayMessage, telegramBot, telegramGropus } = params;
+  const { holidayMessage, telegramBot, telegramGropus, delayMs } = params;
   for (const group of telegramGropus) {
-    await delay(DELAY_SECONDS);
+    await delay(delayMs);
     await telegramBot.telegram.sendMessage(group.trim(), holidayMessage, {
       allow_sending_without_reply: true,
       protect_content: false,
@@ -281,16 +301,21 @@ async function sendYouTubeVideoInTgGroup({
   telegramBot,
   tgGroups,
   urlVideo,
+  delayMs,
 }: {
   urlVideo: string;
   tgGroups: string[];
   telegramBot: Telegraf;
+  /**
+   * пауза между отправками в группу
+   */
+  delayMs: number;
 }) {
   for (const group of tgGroups) {
     await telegramBot.telegram.sendMessage(group.trim(), urlVideo, {
       allow_sending_without_reply: true,
       protect_content: false,
     });
-    await delay(DELAY_SECONDS);
+    await delay(delayMs);
   }
 }

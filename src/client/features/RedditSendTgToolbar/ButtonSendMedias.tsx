@@ -19,8 +19,8 @@ const ButtonSendMedias: FC = () => {
 
   const onClickSend = () => {
     if (!enableSendHolidayName) return sendMediaToTg();
-    const message = `Сегодня у меня хорошее настроение, ведь сегодня отмечают праздник "${selectedHoliday}"`;
-    return sendMediaToTg(message);
+
+    return sendMediaToTg(selectedHoliday);
   };
 
   return (

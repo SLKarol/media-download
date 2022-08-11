@@ -8,7 +8,11 @@ import ButtonSendMedias from './ButtonSendMedias';
 
 const RedditSendTgToolbar: FC = () => {
   const {
-    mediaNewsUI: { toggleModeSelectMedia, clearMediaToTelegram },
+    mediaNewsUI: {
+      toggleModeSelectMedia,
+      clearMediaToTelegram,
+      countMediaToTelegram: { allSelected },
+    },
   } = useMediaNewsStore();
 
   return (
@@ -19,6 +23,7 @@ const RedditSendTgToolbar: FC = () => {
         <ButtonSendMedias />
         <Button icon="eraser" title="Очистить список" onClick={clearMediaToTelegram} />
       </ControlGroup>
+      <div className={styles.allSelected}>Выбрано: {allSelected}</div>
     </div>
   );
 };

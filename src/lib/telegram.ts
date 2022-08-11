@@ -5,7 +5,6 @@ import { Context, Telegraf } from 'telegraf';
 import delay from '@stanislavkarol/delay';
 
 import { FileInTelegram } from '@/types/media';
-import { DELAY_SECONDS } from '@/constants/telegram';
 
 /**
  * Отправить полезную информацию
@@ -39,6 +38,10 @@ type SendPicturesToGroup = {
    * Используется для коллекций: Если в FileInTelegram не задан title, то выводится caption
    */
   caption?: string;
+  /**
+   * пауза между отправками в группу
+   */
+  delayMs: number;
 };
 
 /**
@@ -49,6 +52,7 @@ export async function sendPicturesToGroups({
   telegramBot,
   telegramGropus,
   caption,
+  delayMs,
 }: SendPicturesToGroup) {
   // Получить группу по 10 изображений
   const size = 10;
@@ -63,7 +67,7 @@ export async function sendPicturesToGroups({
 
   for (const group of telegramGropus) {
     for (const media of mediaMessages) {
-      await delay(DELAY_SECONDS);
+      await delay(delayMs);
       await telegramBot.telegram.sendMediaGroup(
         group.trim(),
         media.map(({ id, title }) => ({ type: 'photo', media: id, caption: title || caption })),
@@ -78,10 +82,11 @@ export async function sendGifsToGroups({
   telegramBot,
   telegramGropus,
   caption,
+  delayMs,
 }: SendPicturesToGroup) {
   for (const group of telegramGropus) {
     for (const media of pictures) {
-      await delay(DELAY_SECONDS);
+      await delay(delayMs);
       await telegramBot.telegram.sendAnimation(group.trim(), media.id, {
         caption: media.title || caption,
         allow_sending_without_reply: true,

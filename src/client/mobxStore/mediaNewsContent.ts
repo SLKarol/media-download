@@ -95,7 +95,7 @@ export class MediaNewsContentStore {
    * Отправить выбранные медиа в телеграмм.
    * Если есть holidayMessage, то отправит текст сообщения
    */
-  sendMediaToTg = (holidayMessage?: string) => {
+  sendMediaToTg = (holydayName?: string) => {
     const {
       mediaNewsUI: { mediaToTelegram, sendTitleMedia },
     } = this.rootRedditNewsStore;
@@ -104,7 +104,7 @@ export class MediaNewsContentStore {
       const { id, title, url, unSupportTelegram = false } = m;
       data.push({ id, title: sendTitleMedia ? title : undefined, url, unSupportTelegram });
     });
-    window.electron.ipcRenderer.sendMediaGroupToTg(data, holidayMessage);
+    window.electron.ipcRenderer.sendMediaGroupToTg(data, holydayName);
   };
 
   /**

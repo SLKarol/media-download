@@ -36,13 +36,12 @@ const EVENTS_HANDLERS = {
 /**
  * Обработчики сообщений электрона.
  * В эту переменную собраны для того, чтобы было удобно отписываться от всех обработчиков.
- *
  */
 const handlersOfCallBack = (
   Object.keys(EVENTS_HANDLERS) as Array<keyof typeof EVENTS_HANDLERS>
 ).map((key) => ({
   // eslint-disable-next-line no-unused-vars
-  [key]: (callback: (event: IpcRendererEvent, args: any[]) => void) =>
+  [key]: (callback: (event: IpcRendererEvent, args: unknown[]) => void) =>
     ipcRenderer.on(EVENTS_HANDLERS[key], callback),
 }));
 

@@ -8,6 +8,7 @@ import { RootStoreContext, RootStore } from '@client/mobxStore/root';
 // eslint-disable-next-line react/jsx-no-constructed-context-values
 const rootStore = new RootStore();
 
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const container = document.getElementById('root')!;
 const root = createRoot(container);
 root.render(

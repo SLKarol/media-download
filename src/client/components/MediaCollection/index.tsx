@@ -16,6 +16,7 @@ type Props = {
  */
 function MediaCollection({ collection }: Props) {
   const refContainer = useRef<HTMLDivElement>(null);
+  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
   const [_, startTransition] = useTransition();
   const [widthImgContainer, setWidthImgContainer] = useState(0);
   useEffect(() => {

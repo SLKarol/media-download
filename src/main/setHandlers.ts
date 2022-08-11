@@ -27,7 +27,7 @@ import { getYaPlakalNews, getYaplakalTopic, getYaplakalTopicName } from './yapla
 import { FormDataSelectChapters, ParamsAddDownload } from '@/types/downloader';
 import { TypeMedia } from '@/constants/media';
 import { isCorrectRatio } from '@/lib/images';
-import { IMAGE_SIZE_LIMIT } from '@/constants/telegram';
+import { HOLIDAY_NAME_PATTERN, IMAGE_SIZE_LIMIT } from '@/constants/telegram';
 
 export function setHandlers(props: {
   store: Store<Settings>;
@@ -233,14 +233,23 @@ export function setHandlers(props: {
       body: 'Рассылка отправляется, ждите.',
       silent: true,
     }).show();
-    const [media, holidayMessage] = args as [media: FileSendTelegram[], holidayMessage: string];
+    const delayMs = store.get('waitMsWhenSendTelegram');
+
+    const [media, holydayName] = args as [media: FileSendTelegram[], holidayMessage: string];
 
     const telegramGropus = store.get('telegramGropus').split(',');
     const telegramAdmin = store.get('telegramAdmin');
-    if (holidayMessage) {
-      await sendHolidayNameToTg({ telegramGropus, telegramBot, holidayMessage });
+    if (holydayName) {
+      const holydayTemplate = store.get('descriptionHoliday');
+
+      await sendHolidayNameToTg({
+        telegramGropus,
+        telegramBot,
+        holidayMessage: holydayTemplate.replace(HOLIDAY_NAME_PATTERN, holydayName),
+        delayMs,
+      });
     }
-    await sendMediaGroupToTg({ telegramGropus, media, telegramBot, telegramAdmin });
+    await sendMediaGroupToTg({ telegramGropus, media, telegramBot, telegramAdmin, delayMs });
 
     new Notification({
       title: '',
@@ -342,6 +351,7 @@ export function setHandlers(props: {
   ipcMain.handle(AppSignals.TELEGRAM_SEND_COLLECTION, async ({ sender }, ...args) => {
     const telegramGropus = store.get('telegramGropus').split(',');
     const telegramAdmin = store.get('telegramAdmin');
+    const delayMs = store.get('waitMsWhenSendTelegram');
     // Преобразовать параметр в понятный объект
     const param = args[0] as {
       collection: MediaAlbum;
@@ -371,7 +381,14 @@ export function setHandlers(props: {
       }),
     );
 
-    await sendMediaGroupToTg({ telegramGropus, media, telegramBot, telegramAdmin, caption: title });
+    await sendMediaGroupToTg({
+      telegramGropus,
+      media,
+      telegramBot,
+      telegramAdmin,
+      caption: title,
+      delayMs,
+    });
 
     return sender.send(AppSignals.JOURNAL_ADD_RECORD, {
       id: idRecord,
