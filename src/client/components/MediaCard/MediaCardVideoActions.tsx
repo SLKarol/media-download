@@ -20,6 +20,11 @@ interface Props {
    * "720p", "1080p" и т.д.
    */
   videoFormats?: string[];
+
+  /**
+   * Есть превью-изображение?
+   */
+  hasPreview: boolean;
 }
 
 const MediaCardVideoActions: FC<Props> = ({
@@ -28,6 +33,7 @@ const MediaCardVideoActions: FC<Props> = ({
   idVideoSource,
   hasChapters,
   videoFormats,
+  hasPreview,
 }) => {
   const {
     uiState: { appBusy },
@@ -42,7 +48,7 @@ const MediaCardVideoActions: FC<Props> = ({
   return (
     <VideoActions
       idMedia={id}
-      disabled={appBusy}
+      disabled={appBusy || !hasPreview}
       onClick={onClick}
       idVideoSource={idVideoSource}
       hasChapters={hasChapters}

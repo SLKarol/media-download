@@ -49,9 +49,10 @@ const YaTopic: FC = () => {
       {modeSelectMedia ? (
         <>
           <YaTopicName />
-          <YaTopicToolbar />
+          <YaTopicToolbar visibleSelectForum />
           <SelectedRedditImagesToTelegram />
           <YaTopicListMedia />
+          <YaTopicToolbar visibleSelectForum={false} />
         </>
       ) : (
         <>

@@ -6,11 +6,10 @@ import log from 'electron-log';
 import { StatusFile } from '@client/mobxStore/fileStatus';
 import { AppSignals } from '@/constants/signals';
 import { createFullFileName, saveBase64ToFile } from '@/lib/files';
-import { downloadMedia } from '@/lib/videos';
 import type { MediaAlbum } from '@/types/media';
 
 /**
- * Скачать каритнку
+ * Сохранить картинку
  */
 export async function downloadPicture(params: {
   param: {
@@ -41,16 +40,10 @@ export async function downloadPicture(params: {
 
     // Скачать картинку, получить результат
     const result = { error: '', fullFileName: '' };
-    if (image) {
-      const { error, fullFileName } = await saveBase64ToFile({ data: image, fileName, savePath });
-      result.error = error;
-      result.fullFileName = fullFileName;
-    } else {
-      const { error, fullFileName } = await downloadMedia({ url, fileName, savePath, idRecord });
-      result.error = error;
-      result.fullFileName = fullFileName;
-      log.error(result.error);
-    }
+
+    const { error, fullFileName } = await saveBase64ToFile({ data: image, fileName, savePath });
+    result.error = error;
+    result.fullFileName = fullFileName;
 
     event.sender.send(AppSignals.JOURNAL_ADD_RECORD, {
       id: idRecord,

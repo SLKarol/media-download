@@ -56,6 +56,7 @@ export class MediaNewsContentStore {
         created,
         collection,
         videoFormats,
+        hasPreview,
       } = record.videoDescription;
       re.push({
         title,
@@ -68,6 +69,7 @@ export class MediaNewsContentStore {
         created: created ? dateTimeToString(created) : null,
         collection,
         videoFormats,
+        hasPreview,
       });
     });
     return re;

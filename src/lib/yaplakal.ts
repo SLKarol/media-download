@@ -1,13 +1,10 @@
-import https from 'https';
-import axios from 'axios';
 import { parse } from 'node-html-parser';
 import type { HTMLElement } from 'node-html-parser';
 
 import type { MediaSummaryPreview, YaplakalApiResponse } from '@/types/media';
 import { HasPrevNextPage, MediaForumProperties } from '@/types/mediaForum';
 import { downloadYouTubeInfo } from './youtube';
-
-const httpsAgent = new https.Agent({ keepAlive: true });
+import { getTextContent } from './net';
 
 function decodeYapJson(data: YaplakalApiResponse) {
   const re: Partial<MediaSummaryPreview> = {};
@@ -43,16 +40,17 @@ async function getInfoFromIframe(
   re.id = arrayUrl[arrayUrl.length - 1];
   re.idVideoSource = 'www.yaplakal.com';
   re.permalink = `/${permalink}`;
-  const iframePage = await axios.get(url, { httpsAgent, responseType: 'text' });
-  const rootIframePage = parse(iframePage.data);
+  const iframePage = await getTextContent(url);
+  const rootIframePage = parse(iframePage);
   const scriptIframe = rootIframePage.querySelector('body>script').innerHTML;
   const indxBegin = scriptIframe.indexOf("url: 'https://api.yapfiles.ru/load/");
   const indxEnd = scriptIframe.indexOf('&type=json&ref=', indxBegin);
   if (indxBegin === -1 || indxEnd === -1) return re;
   const urlJson = `${scriptIframe.substring(indxBegin + 6, indxEnd)}&type=json`;
-  const iframeJsonData = await axios.get<YaplakalApiResponse>(urlJson, { responseType: 'json' });
+  const resonse = await getTextContent(urlJson);
+  const iframeJsonData = JSON.parse(resonse) as YaplakalApiResponse;
 
-  const data = decodeYapJson(iframeJsonData.data);
+  const data = decodeYapJson(iframeJsonData);
   Object.assign(re, data);
 
   return re;
@@ -65,23 +63,23 @@ async function getInfoFromDiv(
   const re: Partial<MediaSummaryPreview> = {};
   re.idVideoSource = 'www.yaplakal.com';
   re.permalink = `/${permalink}`;
-  const response = await axios.get(url, { httpsAgent, responseType: 'text' });
-  const root = parse(response.data);
+  const response = await getTextContent(url);
+  const root = parse(response);
   const html = root.toString();
   const indxBegin = html.indexOf('https://api.yapfiles.ru/load/');
   const indxEnd = html.indexOf('&type=json', indxBegin);
   if (indxBegin === -1 || indxEnd === -1) return re;
   const urlJson = `${html.substring(indxBegin, indxEnd)}&type=json`;
-  const jsonData = await axios.get<YaplakalApiResponse>(urlJson, { responseType: 'json' });
-  const data = decodeYapJson(jsonData.data);
+  const jsonData = await getTextContent(urlJson);
+
+  const data = decodeYapJson(JSON.parse(jsonData));
   Object.assign(re, data);
   return re;
 }
 
-// todo delete
 export async function downloadYapPageInfo(url: string): Promise<MediaSummaryPreview> {
-  const htmlPage = await axios.get(url, { httpsAgent, responseType: 'text' });
-  const root = parse(htmlPage.data);
+  const htmlPage = await getTextContent(url);
+  const root = parse(htmlPage);
   const title = root.querySelector('h1#main-title.subpage');
   const re: MediaSummaryPreview = {
     title: title.textContent,

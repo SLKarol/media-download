@@ -1,20 +1,17 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
-import { rm } from 'fs/promises';
-import { randomUUID } from 'crypto';
 import type { IpcMainInvokeEvent } from 'electron';
-import { app, Notification } from 'electron';
+import { Notification } from 'electron';
 import log from 'electron-log';
 import type { Telegraf } from 'telegraf';
 import delay from '@stanislavkarol/delay';
 
 import { StatusFile } from '@client/mobxStore/fileStatus';
-
+import type { DownloaderMedia } from '@/lib/downloaderMedia';
+import { TypeMedia } from '@/constants/media';
 import { AppSignals } from '@/constants/signals';
-import { createFullFileName } from '@/lib/files';
-import { downloadMedia } from '@/lib/videos';
 import { FileInTelegram, FileSendTelegram } from '@/types/media';
-import { sendPicturesToGroups, sendGifsToGroups } from '@/lib/telegram';
+import { sendPicturesToGroups, sendGifsToGroups, sendVideoToTelegram } from '@/lib/telegram';
 
 type CombineAnimationType = { animation: { file_id: string }; video: { file_id: string } };
 
@@ -39,6 +36,7 @@ export async function sendVideoInTgGroup(props: {
    * пауза между отправками в группу
    */
   delayMs: number;
+  downloaderMedia: DownloaderMedia;
 }): Promise<void> {
   const {
     event,
@@ -54,6 +52,7 @@ export async function sendVideoInTgGroup(props: {
     tgAdmin,
     idVideoSource,
     delayMs,
+    downloaderMedia,
   } = props;
 
   if (idVideoSource === 'www.youtube.com') {
@@ -72,72 +71,51 @@ export async function sendVideoInTgGroup(props: {
     body: 'Отправляется в телеграм',
     silent: true,
   }).show();
-  const inputVideo: { source: string | undefined; url: string | undefined } = {
-    source: undefined,
-    url: undefined,
-  };
 
   try {
-    // Файл во временный каталог
     if (urlAudio) {
-      const tmpPath = app.getPath('temp');
-      // Получить имя файла
-      const fileName = createFullFileName({
-        savePath: tmpPath,
-        title: randomUUID(),
-        urlAudio,
-        url: urlVideo,
-      });
-      // Скачать файл во временный каталог
-      const { error, fullFileName } = await downloadMedia({
-        url: urlVideo,
-        urlAudio,
-        fileName,
-        savePath: tmpPath,
-        idRecord: id,
-      });
-
-      if (error) {
-        log.error(error);
-        event.sender.send(AppSignals.BACKEND_ERROR, error);
-        return undefined;
-      }
-      inputVideo.source = fullFileName;
-    } else inputVideo.url = urlVideo;
-
-    // Отправить в админскую телеграм-группу
-    const sendTgresult = await telegramBot.telegram.sendVideo(tgAdmin, inputVideo, {
-      caption: title,
-      height,
-      width,
-      thumb: { url: thumb },
-    });
-
-    if (inputVideo.source) {
-      rm(inputVideo.source);
-    }
-    // В телеграмм-группы отправить ссылку на файл в облаке телеграмм
-    const {
-      video: { file_id: fileId },
-    } = sendTgresult;
-    if (fileId) {
-      for (const group of tgGroups) {
-        await delay(delayMs);
-        await telegramBot.telegram.sendVideo(group.trim(), fileId, {
-          caption: title,
+      // Выполнить после скачивания файла: Отправить в телеграм
+      const runAfterWork = (fileName: string) => {
+        // const form = new FormData();
+        // form.append('video', fs.createReadStream(fileName));
+        sendVideoToTelegram({
+          delayMs,
+          eventSender: event.sender,
+          id,
+          inputVideo: { source: fileName },
+          telegramBot,
+          tgAdmin,
+          tgGroups,
+          thumb,
+          title,
           height,
           width,
-          thumb: { url: thumb },
         });
-      }
-    }
-
-    event.sender.send(AppSignals.JOURNAL_ADD_RECORD, {
-      id,
-      title,
-      status: StatusFile.TELEGRAM_SEND,
-      description: '',
-    });
+      };
+      // Скачать файл во временный каталог
+      downloaderMedia.runCommonDownload({
+        eventSender: event.sender,
+        idVideoSource,
+        title,
+        url: urlVideo,
+        urlAudio,
+        media: TypeMedia.video,
+        runAfterWork,
+      });
+    } else
+      sendVideoToTelegram({
+        delayMs,
+        eventSender: event.sender,
+        id,
+        inputVideo: { url: urlVideo },
+        telegramBot,
+        tgAdmin,
+        tgGroups,
+        thumb,
+        title,
+        height,
+        width,
+      });
   } catch (e) {
     log.error(e);
     event.sender.send(AppSignals.BACKEND_ERROR, e);

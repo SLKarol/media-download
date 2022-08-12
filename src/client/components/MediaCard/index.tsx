@@ -26,6 +26,7 @@ const MediaCard: FC<PropsWithChildren<Props>> = ({
   hasChapters,
   collection,
   videoFormats,
+  hasPreview,
 }) => {
   return (
     <Card elevation={Elevation.ONE} className={styles.component}>
@@ -40,6 +41,7 @@ const MediaCard: FC<PropsWithChildren<Props>> = ({
         idVideoSource={idVideoSource}
         hasChapters={hasChapters}
         videoFormats={videoFormats}
+        hasPreview={hasPreview}
       />
       {children}
     </Card>

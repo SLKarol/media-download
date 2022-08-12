@@ -9,7 +9,11 @@ import ButtonsNextPrev from '@/client/components/ButtonsNextPrev';
 
 const { ipcRenderer } = window.electron;
 
-const YaTopicToolbar: FC = () => {
+interface Props {
+  visibleSelectForum?: boolean;
+}
+
+const YaTopicToolbar: FC<Props> = ({ visibleSelectForum }) => {
   const navigate = useNavigate();
 
   const {
@@ -60,7 +64,7 @@ const YaTopicToolbar: FC = () => {
       onClickPrev={onClickPrev}
       onClickUp={onClickUp}
       disabledSelectForum={appBusy}
-      visibleSelectForum
+      visibleSelectForum={visibleSelectForum}
     />
   );
 };

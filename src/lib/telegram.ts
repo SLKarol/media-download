@@ -3,8 +3,11 @@
 /* eslint-disable camelcase */
 import { Context, Telegraf } from 'telegraf';
 import delay from '@stanislavkarol/delay';
+import type { WebContents } from 'electron';
 
+import { StatusFile } from '@client/mobxStore/fileStatus';
 import { FileInTelegram } from '@/types/media';
+import { AppSignals } from '@/constants/signals';
 
 /**
  * Отправить полезную информацию
@@ -94,4 +97,72 @@ export async function sendGifsToGroups({
       });
     }
   }
+}
+
+/**
+ * Отправить видео в телеграмм
+ */
+export async function sendVideoToTelegram({
+  inputVideo,
+  tgAdmin,
+  telegramBot,
+  title,
+  height,
+  width,
+  thumb,
+  tgGroups,
+  delayMs,
+  eventSender,
+  id,
+}: {
+  inputVideo: { source?: string; url?: string };
+  tgAdmin: string;
+  telegramBot: Telegraf;
+  title: string;
+  height?: number;
+  width?: number;
+  thumb: string;
+  tgGroups: string[];
+  /**
+   * пауза между отправками в группу
+   */
+  delayMs: number;
+  eventSender: WebContents;
+  id: string;
+}) {
+  // Отправить в админскую телеграм-группу
+
+  const sendTgresult = await telegramBot.telegram.sendVideo(
+    tgAdmin,
+    inputVideo as { source: string },
+    {
+      caption: title,
+      height,
+      width,
+      thumb: { url: thumb },
+    },
+  );
+
+  // В телеграмм-группы отправить ссылку на файл в облаке телеграмм
+  const {
+    video: { file_id: fileId },
+  } = sendTgresult;
+  if (fileId) {
+    for (const group of tgGroups) {
+      await delay(delayMs);
+      await telegramBot.telegram.sendVideo(group.trim(), fileId, {
+        caption: title,
+        height,
+        width,
+        thumb: { url: thumb },
+      });
+    }
+  }
+
+  eventSender.send(AppSignals.JOURNAL_ADD_RECORD, {
+    id,
+    title,
+    status: StatusFile.TELEGRAM_SEND,
+    description: '',
+  });
 }

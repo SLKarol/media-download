@@ -420,7 +420,7 @@ export class DownloaderMedia {
    * Запуск скачивания в общих случаях
    */
   runCommonDownload = (params: ParamsSenderAddDownload) => {
-    const { title, eventSender, url, urlAudio } = params;
+    const { title, eventSender, url, urlAudio, runAfterWork } = params;
 
     const idDownload = randomUUID();
     eventSender.send(AppSignals.JOURNAL_ADD_RECORD, {
@@ -438,7 +438,14 @@ export class DownloaderMedia {
         media: TypeMedia.video,
         video: { downloaded: 0, total: Infinity },
       });
-      return this.createGetRequest({ eventSender, fileNameToSave, idDownload, url, type: 'video' });
+      return this.createGetRequest({
+        eventSender,
+        fileNameToSave,
+        idDownload,
+        url,
+        type: 'video',
+        runAfterWork,
+      });
     }
 
     this.currentDownload.set(idDownload, {
@@ -453,6 +460,7 @@ export class DownloaderMedia {
       idDownload,
       url,
       urlAudio,
+      runAfterWork,
     });
   };
 
@@ -465,8 +473,10 @@ export class DownloaderMedia {
     idDownload: string;
     eventSender: WebContents;
     type: 'subtitle' | 'audio' | 'video';
+    // eslint-disable-next-line no-unused-vars
+    runAfterWork?: (fullFileName: string) => void;
   }) => {
-    const { fileNameToSave, url, idDownload, eventSender, type } = params;
+    const { fileNameToSave, url, idDownload, eventSender, type, runAfterWork } = params;
     const tracker = this.currentDownload.get(idDownload);
 
     const request = net.request({ url });
@@ -486,7 +496,11 @@ export class DownloaderMedia {
         unlink(fileNameToSave).catch((e) => console.error(e));
       });
       response.on('end', () => {
-        stream.close();
+        stream.close((err) => {
+          if (runAfterWork && !this.abortedDownloads.has(idDownload) && !err) {
+            runAfterWork(fileNameToSave);
+          }
+        });
         this.onEndProcess({ idDownload, webContents: eventSender });
       });
       response.on('data', (chunk) => {
@@ -514,8 +528,10 @@ export class DownloaderMedia {
     urlAudio: string;
     idDownload: string;
     eventSender: WebContents;
+    // eslint-disable-next-line no-unused-vars
+    runAfterWork?: (fullFileName: string) => void;
   }) => {
-    const { fileNameToSave, url, idDownload, eventSender, urlAudio } = params;
+    const { fileNameToSave, url, idDownload, eventSender, urlAudio, runAfterWork } = params;
     const tracker = this.currentDownload.get(idDownload);
 
     // Создать команду на слияние видео и аудио
@@ -523,6 +539,7 @@ export class DownloaderMedia {
       fullFileName: fileNameToSave,
       idDownload,
       webContents: eventSender,
+      runAfterWork,
     });
 
     // Сделать поток скачивания видео-ресурса

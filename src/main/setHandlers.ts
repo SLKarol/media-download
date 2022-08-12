@@ -148,7 +148,8 @@ export function setHandlers(props: {
   ipcMain.handle(AppSignals.TELEGRAM_SEND_VIDEO, (event, ...args) => {
     const tgGroups = store.get('telegramGropus').split(',');
     const tgAdmin = store.get('telegramAdmin');
-    if (tgGroups.length) sendVideoInTgGroup({ ...args[0], event, tgGroups, telegramBot, tgAdmin });
+    if (tgGroups.length)
+      sendVideoInTgGroup({ ...args[0], event, tgGroups, telegramBot, tgAdmin, downloaderMedia });
   });
 
   ipcMain.handle(AppSignals.REDDIT_RECEIVE_MY_REDDITS, async (event) => {

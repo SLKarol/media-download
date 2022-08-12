@@ -1,7 +1,7 @@
 {
   "name": "media-download",
   "productName": "media-download",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Приложение для скачивания медиа с различных хостингов",
   "main": ".webpack/main",
   "scripts": {
@@ -106,7 +106,6 @@
     "@blueprintjs/popover2": "^1.5.1",
     "@blueprintjs/select": "^4.5.3",
     "@stanislavkarol/delay": "^1.0.3",
-    "axios": "^0.27.2",
     "clsx": "^1.2.1",
     "dotenv": "^16.0.1",
     "electron-log": "^4.4.8",

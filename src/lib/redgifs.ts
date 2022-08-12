@@ -1,16 +1,15 @@
-import axios from 'axios';
 import { parse } from 'node-html-parser';
 import type { Submission } from 'snoowrap';
 
 import type { RedGifsJson, MediaSummaryPreview } from '@/types/media';
-
 import { VIDEO_SOURCES } from '@/constants/videoSrc';
+import { getTextContent } from './net';
 
 const urlPattern = VIDEO_SOURCES.get('www.redgifs.com').pattern;
 
 export async function downloadRedGifsInfo(url: string): Promise<MediaSummaryPreview> {
-  const htmlPage = await axios.get(url, { responseType: 'text' });
-  const root = parse(htmlPage.data);
+  const htmlPage = await getTextContent(url);
+  const root = parse(htmlPage);
   const json = root.querySelector('script[type=application/ld+json]');
   const jsonData = JSON.parse(json.innerText) as RedGifsJson;
   const arrayName = urlPattern.exec(url)[0].split('/').reverse();

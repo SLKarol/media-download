@@ -151,6 +151,7 @@ export class MediaRecordStore {
       unSupportTelegram,
       hasChapters,
       videoFormats,
+      hasPreview: !!decoded,
     };
   }
 

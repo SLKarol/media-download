@@ -148,6 +148,11 @@ export interface MediaSummaryUi extends MediaSummary {
    * "720p", "1080p" и т.д.
    */
   videoFormats?: string[];
+
+  /**
+   * Есть превью-изображение?
+   */
+  hasPreview?: boolean;
 }
 
 export interface FileSendTelegram {
