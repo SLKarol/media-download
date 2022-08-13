@@ -96,7 +96,8 @@ const createWindow = (): void => {
   const telegramBot: Telegraf | undefined = telegramToken
     ? runTelegramBot(telegramToken)
     : undefined;
-  setHandlers({ menuBuilder, store, reddit, telegramBot, downloaderMedia });
+  const version = app.getVersion();
+  setHandlers({ menuBuilder, store, reddit, telegramBot, downloaderMedia, version });
 };
 
 // This method will be called when Electron has finished

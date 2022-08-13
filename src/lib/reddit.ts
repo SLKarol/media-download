@@ -124,7 +124,7 @@ export class Reddit {
       limit,
       after: after || undefined,
       before: before || undefined,
-      count: 555,
+      count: 5,
     });
     const { _query } = newSubbRecords as unknown as { _query: { after: string | null } };
     const data = await Promise.allSettled(newSubbRecords.map(parseSubmissionInfo)).then((records) =>

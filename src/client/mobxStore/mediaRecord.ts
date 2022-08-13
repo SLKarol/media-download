@@ -107,6 +107,7 @@ export class MediaRecordStore {
       previewImages = {},
       chapters,
       listFormats,
+      collection,
       ...info
     } = this.info;
     const { height: previewImageHeight = undefined, width: previewImageWidth = undefined } =
@@ -142,6 +143,11 @@ export class MediaRecordStore {
     }
     const hasChapters = Array.isArray(chapters) && chapters.length > 0;
     const videoFormats = listFormats ? Array.from(listFormats.keys()) : undefined;
+    let hasPreview = !!decoded;
+
+    if (collection) {
+      hasPreview = Object.values(collection).every((c) => !!c.data);
+    }
     return {
       ...info,
       width,
@@ -151,7 +157,8 @@ export class MediaRecordStore {
       unSupportTelegram,
       hasChapters,
       videoFormats,
-      hasPreview: !!decoded,
+      collection,
+      hasPreview,
     };
   }
 

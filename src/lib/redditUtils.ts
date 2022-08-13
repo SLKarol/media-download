@@ -12,6 +12,8 @@ import { decodeImageUrlTo64, urlExists } from '@/lib/net';
 import { downloadRedGifsInfo } from '@/lib/redgifs';
 import { downloadImgurInfo } from '@/lib/imgur';
 import { downloadGfycatInfo } from './gfycat';
+import { VIDEO_SOURCES } from '@/constants/videoSrc';
+import { downloadYouTubeInfo } from './youtube';
 
 const REGEXP_GIF_REDDIT = /https:\/\/i.redd.it\/\w+(.gif)?/;
 
@@ -250,6 +252,13 @@ export async function parseSubmissionInfo(submission: Submission): Promise<Media
       },
       created: date.toJSON(),
     };
+  }
+
+  // Если медиа из ютуб, взять ютуб-инфу
+  const yutobePattern = VIDEO_SOURCES.get('www.youtube.com').pattern;
+  if (yutobePattern.test(url)) {
+    const info = await downloadYouTubeInfo(url);
+    return info;
   }
 
   // Если это галерея, то разобрать, что в этой галерее

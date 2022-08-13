@@ -35,6 +35,7 @@ export function setHandlers(props: {
   reddit: Reddit;
   telegramBot: Telegraf;
   downloaderMedia: DownloaderMedia;
+  version: string;
 }): void {
   const { store, menuBuilder, reddit, telegramBot, downloaderMedia } = props;
 
@@ -283,7 +284,7 @@ export function setHandlers(props: {
     const [title = ''] = args as string[];
     const window = BrowserWindow.getFocusedWindow();
     if (window) {
-      window.setTitle(title);
+      window.setTitle(`${title} - v${props.version}`);
     }
   });
 
