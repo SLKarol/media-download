@@ -5,6 +5,10 @@
   margin: 0.2rem;
 }
 
-.dateTime {
+.marginBottom {
   margin-bottom: 0.5rem;
+}
+
+.warning {
+  color: #C87619;
 }

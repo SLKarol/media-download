@@ -308,6 +308,7 @@ export async function parseSubmissionInfo(submission: Submission): Promise<Media
   if (/.gif/i.test(url)) {
     preview.images[0].source.url = url;
   }
+  const noMedia = !preview && !videoParts && !dimensionPropName && !galleryData && !mediaMetadata;
 
   return {
     id,
@@ -325,6 +326,7 @@ export async function parseSubmissionInfo(submission: Submission): Promise<Media
     previewImages: { height, width },
     preview,
     created: date.toJSON(),
+    noMedia,
   };
 }
 

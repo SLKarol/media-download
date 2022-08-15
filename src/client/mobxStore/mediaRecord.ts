@@ -60,6 +60,7 @@ export class MediaRecordStore {
       subtitles,
       chapters,
       listFormats,
+      noMedia,
     } = value;
     this.info = {
       downloadedFileName,
@@ -79,6 +80,7 @@ export class MediaRecordStore {
       subtitles,
       chapters,
       listFormats,
+      noMedia,
     };
   };
 

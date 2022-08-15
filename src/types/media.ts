@@ -69,6 +69,11 @@ export interface MediaSummary {
    * список доступных форматов у медиа
    */
   listFormats?: Map<string, number[]>;
+
+  /**
+   * Не содержит мкльтимедиа
+   */
+  noMedia?: boolean;
 }
 
 /**
