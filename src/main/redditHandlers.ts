@@ -43,7 +43,8 @@ export async function getRedditNews({
 
     // Получить постеры к каждой записи
     const promises = data.map((n) => {
-      const { id, preview, collection } = n;
+      const { id, preview, collection, noMedia } = n;
+      if (noMedia) return null;
       // Если запись из Reddit с альбомом:
       if (collection) {
         return getImagesCollection(collection).then((loadedCollection) =>
