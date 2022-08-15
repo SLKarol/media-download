@@ -27,14 +27,22 @@ const MediaCard: FC<PropsWithChildren<Props>> = ({
   collection,
   videoFormats,
   hasPreview,
+  noMedia,
 }) => {
   return (
     <Card elevation={Elevation.ONE} className={styles.component}>
       <H5>{title}</H5>
-      {created ? <span className={clsx('bp4-text-small', styles.dateTime)}>{created}</span> : null}
-      <MediaPreviewComponent decoded={previewImages?.decoded} title={title} />
+      {created ? (
+        <span className={clsx('bp4-text-small', styles.marginBottom)}>{created}</span>
+      ) : null}
+      <MediaPreviewComponent decoded={previewImages?.decoded} title={title} noMedia={noMedia} />
       {collection && <MediaCollection collection={collection} />}
-      <span>{dimensions}</span>
+      {dimensions ? <span className={styles.marginBottom}>{dimensions}</span> : null}
+      {noMedia ? (
+        <span className={clsx(styles.marginBottom, styles.warning)}>
+          Не содержит (или не найдены) медиа-ресурсы
+        </span>
+      ) : null}
       <MediaCardVideoActions
         id={id}
         onSelectMediaAction={onSelectMediaAction}
@@ -42,6 +50,7 @@ const MediaCard: FC<PropsWithChildren<Props>> = ({
         hasChapters={hasChapters}
         videoFormats={videoFormats}
         hasPreview={hasPreview}
+        noMedia={noMedia}
       />
       {children}
     </Card>

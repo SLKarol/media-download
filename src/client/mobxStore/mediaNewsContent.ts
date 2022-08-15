@@ -57,6 +57,7 @@ export class MediaNewsContentStore {
         collection,
         videoFormats,
         hasPreview,
+        noMedia,
       } = record.videoDescription;
       re.push({
         title,
@@ -70,6 +71,7 @@ export class MediaNewsContentStore {
         collection,
         videoFormats,
         hasPreview,
+        noMedia,
       });
     });
     return re;

@@ -25,6 +25,11 @@ interface Props {
    * Есть превью-изображение?
    */
   hasPreview: boolean;
+
+  /**
+   * Не содержит мультимедиа?
+   */
+  noMedia?: boolean;
 }
 
 const MediaCardVideoActions: FC<Props> = ({
@@ -34,6 +39,7 @@ const MediaCardVideoActions: FC<Props> = ({
   hasChapters,
   videoFormats,
   hasPreview,
+  noMedia,
 }) => {
   const {
     uiState: { appBusy },
@@ -53,6 +59,7 @@ const MediaCardVideoActions: FC<Props> = ({
       idVideoSource={idVideoSource}
       hasChapters={hasChapters}
       videoFormats={videoFormats}
+      noMedia={noMedia}
     />
   );
 };

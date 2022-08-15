@@ -29,6 +29,10 @@ interface Props {
    * "720p", "1080p" и т.д.
    */
   videoFormats?: string[];
+  /**
+   * Не содержит мультимедиа?
+   */
+  noMedia?: boolean;
 }
 
 const VideoActions: FC<Props> = ({
@@ -40,9 +44,10 @@ const VideoActions: FC<Props> = ({
   subtitles,
   hasChapters,
   videoFormats,
+  noMedia,
 }) => (
   <ButtonGroup className={className}>
-    {idVideoSource === 'www.youtube.com' ? (
+    {!noMedia && idVideoSource === 'www.youtube.com' ? (
       <>
         <DownloadYouTube
           idMedia={idMedia}
@@ -56,12 +61,12 @@ const VideoActions: FC<Props> = ({
         ) : null}
       </>
     ) : null}
-    {idVideoSource !== 'www.youtube.com' ? (
+    {!noMedia && idVideoSource !== 'www.youtube.com' ? (
       <DownloadVideo idMedia={idMedia} onClick={onClick} disabled={disabled} />
     ) : null}
-    <SendToTelegram idMedia={idMedia} onClick={onClick} disabled={disabled} />
+    {!noMedia ? <SendToTelegram idMedia={idMedia} onClick={onClick} disabled={disabled} /> : null}
     <CopyToClipBoard idMedia={idMedia} onClick={onClick} />
-    {idVideoSource === 'www.reddit.com' ? (
+    {!noMedia && idVideoSource === 'www.reddit.com' ? (
       <VoteMedia idMedia={idMedia} onClick={onClick} disabled={disabled} />
     ) : null}
     <OpenInBrowser idMedia={idMedia} onClick={onClick} />
