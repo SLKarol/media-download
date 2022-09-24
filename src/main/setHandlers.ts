@@ -229,7 +229,7 @@ export function setHandlers(props: {
     }
   });
 
-  ipcMain.handle(AppSignals.TELEGRAM_SEND_MEDIA_GROUP, async (event, ...args) => {
+  ipcMain.handle(AppSignals.TELEGRAM_SEND_MEDIA_GROUP, async (_, ...args) => {
     new Notification({
       title: '',
       body: 'Рассылка отправляется, ждите.',
@@ -247,7 +247,9 @@ export function setHandlers(props: {
       await sendHolidayNameToTg({
         telegramGropus,
         telegramBot,
-        holidayMessage: holydayTemplate.replace(HOLIDAY_NAME_PATTERN, holydayName),
+        holidayMessage: holydayTemplate
+          ? holydayTemplate.replace(HOLIDAY_NAME_PATTERN, holydayName)
+          : holydayName,
         delayMs,
       });
     }
